@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+
+    <meta charset="UTF-8">
+    <title>SisControle</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{STATIC_URL}}css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{{STATIC_URL}}css/login.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+      <form class="form-signin" method="POST" role="form">{% csrf_token %}
+        <h2 class="form-signin-heading">Entrar no SisControle</h2>
+          {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+          {% endif %}
+        <label for="inputUsername" class="sr-only">Nome de usuário ou Email</label>
+        <input type="text" id="inputUsername" name="username" class="form-control" placeholder="Nome de Usuário" required autofocus>
+        <label for="inputPassword" class="sr-only">Senha</label>
+        <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Senha" required>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me"> Lembrar senha
+          </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Entrar</button>
+      </form>
+
+    </div> <!-- /container -->
+
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+{% load i18n %}
+
+<div class="row" id="group-multiple-selection">
+    <div class="col-md-12">
+        <div class="btn-group disabled">
+          <button type="button" id="multiple-selection-action" class="btn btn-info dropdown-toggle" aria-expanded="false" disabled data-toggle="dropdown">{% trans 'Multiple selection action' %}
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a id="remove" href="#"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans 'Remove' %}</a></li>
+            <li class="divider"></li>
+            <li><a id="print-members-cards" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span> {% trans 'Print ID Cards' %}</a></li>
+          </ul>
+        </div>
+    </div>
+</div>

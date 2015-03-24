@@ -1,0 +1,280 @@
+{% extends "dashboard_base.html" %}
+{% load i18n %}
+{% load bootstrap_form %}
+
+{% block css_scripts %}
+    <!-- Bootstrap Core CSS -->
+    <link href="{{STATIC_URL}}css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="{{STATIC_URL}}css/metisMenu.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="{{STATIC_URL}}css/dataTables.bootstrap.css" rel="stylesheet">
+
+    <!-- DataTables Responsive CSS -->
+    <link href="{{STATIC_URL}}css/dataTables.responsive.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{{STATIC_URL}}css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="{{STATIC_URL}}css/font-awesome.min.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block page_content %}
+ <div class="row">
+    <div class="col-lg-12">
+       {% block page_content_title %} <h1 class="page-header">{{ page_name|safe }}</h1>{% endblock %}
+    </div>
+</div>
+<div class="row">
+    <!-- /.col-lg-12 -->
+     <div class="col-lg-12">
+         {% block message %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags %}{{ message.tags }} alert-dismissible"{% endif %}>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+         {% endblock %}
+<div class="row">
+    <div class="col-lg-12">
+        <div id="group-multiple-selection" class="btn-group pull-right disabled">
+          <button type="button" id="multiple-selection-action" class="btn btn-info dropdown-toggle" aria-expanded="false" disabled data-toggle="dropdown">{% trans 'Multiple selection action' %}
+            <span class="caret"></span>
+            <span class="sr-only">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a id="remove" href="#"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> {% trans 'Remove' %}</a></li>
+            <li class="divider"></li>
+            <li><a id="print-members-cards" href="#"><span class="glyphicon glyphicon-print" aria-hidden="true"></span> {% trans 'Print ID Cards' %}</a></li>
+          </ul>
+        </div>
+    </div>
+</div>
+         &nbsp;
+         {% block datatable %}
+           {% if object_list.count <= 100 %}
+             <div class="dataTable_wrapper">
+                <table class="datatable table table-striped table-bordered table-hover" id="datatable">
+                    <thead>
+                        <tr>
+                            {% for field in fields %}
+                                <th>{{ field.verbose_name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for o in object_list %}
+                            <tr>
+                                {% for field in fields %}
+                                    <td attr_name="obj_{{ field.name }}">
+                                        <a href="{{ o.get_absolute_url }}">{{ o|getattr:field.name|safe}}</a>
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+             </div>
+           {% else %}
+               <div class="dataTable_wrapper">
+                {{ datatable }}
+               </div>
+           {% endif %}
+         {% endblock %}
+
+     </div>
+</div>
+
+
+<div id="remove-prompt" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">{% trans 'Confirm deletion' %}</h4>
+      </div>
+      <div class="modal-body">
+        <p id="remove-confirm-message">{% trans "Do you really want to delete " %}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans 'No' %}</button>
+        <button id="remove-confirm" type="button" class="btn btn-primary">{% trans 'Confirm' %}</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+{% endblock %}
+<!-- DataTables JavaScript -->
+{% block js_scripts %}
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="{{STATIC_URL}}js/metisMenu.min.js"></script>
+
+    <!-- DataTables JavaScript -->
+    <script src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+    <script src="{{STATIC_URL}}js/dataTables.bootstrap.min.js"></script>
+
+
+    <!-- Custom Theme JavaScript -->
+    <script src="{{STATIC_URL}}js/sb-admin-2.js"></script>
+
+    <!-- Page-Level Demo Scripts - Tables - Use for reference -->
+
+
+    <script>
+        var language = {
+            "emptyTable":     "{% trans 'No data available in table'%}",
+            "info":           "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries'%}",
+            "sInfo":          "{% trans 'Showing _START_ to _END_ of _TOTAL_ entries'%}",
+            "infoEmpty":      "{% trans 'Showing 0 to 0 of 0 entries'%}",
+            "infoFiltered":   "({% trans 'filtered from _MAX_ total entries'%})",
+            "sInfoFiltered":   "({% trans 'filtered from _MAX_ total entries'%})",
+            "infoPostFix":    "",
+            "thousands":      ",",
+            "lengthMenu":     "{% trans 'Show _MENU_ entries'%}",
+            "loadingRecords": "{% trans 'Loading'%}...",
+            "processing":     "{% trans 'Processing'%}...",
+            "search":         "{% trans 'Search'%}:",
+            "zeroRecords":    "{% trans 'No matching records found'%}",
+            "paginate": {
+                "first":      "{% trans 'First'%}",
+                "last":       "{% trans 'Last'%}",
+                "next":       "{% trans 'Next'%}",
+                "previous":   "{% trans 'Previous'%}"
+            },
+            "aria": {
+                "sortAscending": "{% trans 'activate to sort column ascending'%}",
+                "sortDescending": "{% trans 'activate to sort column descending'%}"
+            }
+        };
+    </script>
+
+    {% if object_list.count > 100 %}
+        <script type="text/javascript" charset="utf8" src="{{ STATIC_URL }}js/datatableview.js"></script>
+        <script>
+            datatableview.auto_initialize = false;
+            $(function(){
+                // Or, if there are common options that should be given to all select elements,
+                // you can specify them now.  data-* API attributes will override these options.
+                var common_options = {
+                    language: language,
+                    responsive: true,
+                    pageLength: 100
+                };
+                datatableview.initialize($('.datatable'), common_options);
+            });
+        </script>
+    {% else %}
+        <script>
+            function getCookie(name) {
+                    var cookieValue = null;
+                        if (document.cookie && document.cookie != '') {
+                            var cookies = document.cookie.split(';');
+                            for (var i = 0; i < cookies.length; i++) {
+                                var cookie = $.trim(cookies[i]);
+                                // Does this cookie string begin with the name we want?
+                                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                    break;
+                                }
+                            }
+                        }
+                        return cookieValue;
+                }
+                var csrftoken = getCookie('csrftoken');
+
+                function csrfSafeMethod(method) {
+                    // these HTTP methods do not require CSRF protection
+                    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+                }
+
+                function sameOrigin(url) {
+                    var host = document.location.host; // host + port
+                    var protocol = document.location.protocol;
+                    var sr_origin = '//' + host;
+                    var origin = protocol + sr_origin;
+                    return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+                        !(/^(\/\/|http:|https:).*/.test(url));
+                }
+
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    }
+                });
+            </script>
+
+        <script>
+        $(document).ready(function() {
+            $('.datatable').DataTable({
+                responsive: true,
+                pageLength: 100,
+                language: language
+            });
+        });
+        </script>
+    {% endif %}
+    <script>
+        $(document).ready(function() {
+                $('.datatable tbody').on( 'click', 'tr', function () {
+                    $(this).toggleClass('selected');
+                    if ($('tr.selected').size() == 0){
+                        $('button#multiple-selection-action').attr('disabled','');
+                        $('button#multiple-selection-action-toggle').attr('disabled','');
+                    }else{
+                        $('button#multiple-selection-action').removeAttr('disabled');
+                        $('button#multiple-selection-action-toggle').removeAttr('disabled');
+                    }
+                });
+                var erase_objs = [];
+                $('#remove').click(function(){
+                    erase_objs = [];
+                    $('tr.selected').each(function(i,e){
+                        erase_objs.push({
+                            'id': $.trim($(e).find('td[attr_name="obj_id"]').first().text()),
+                            'name': $.trim($(e).find('td[attr_name="obj_name"]').first().text())
+                        });
+                    });
+                    console.log(erase_objs);
+                    if (erase_objs.length > 0){
+                        var name = [];
+                        for (var i=0; i < erase_objs.length; i++) name.push(erase_objs[i].name);
+                        var message = "{% trans 'Do you really want to delete:' %} " + name.join(', ')+"?"
+                        $('#remove-confirm-message').text(message);
+                        $('#remove-prompt').modal();
+                    }
+                });
+
+                $('#remove-confirm').click(function(){
+                    var ids = [];
+                    for (var i = 0; i < erase_objs.length; i++) ids.push(erase_objs[i].id);
+                    $.ajax({
+                        url: '{% url list_view %}',
+                        type: 'delete',
+                        data: JSON.stringify({'ids': ids}),
+                        success: function(data){
+                            $('#remove-prompt').modal('hide');
+                            Dashboard.show_message("{% trans 'Deleting...' %}", 'warning');
+                            window.location = '{% url list_view %}';
+                        },error: function(){
+                            $('#remove-prompt').modal('hide');
+                            Dashboard.show_message("{% trans 'Some error occurred.' %}", 'danger');
+                        }
+                    })
+                });
+        });
+    </script>
+{% endblock %}
