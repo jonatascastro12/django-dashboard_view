@@ -4,6 +4,6 @@ recursive-include dashboard_view/static *
 recursive-include dashboard_view/templates *
 recursive-include crop_image/static *
 recursive-include crop_image/templates *
-recursive-include bootstrap_form/static *
 recursive-include bootstrap_form/templates *
+recursive-include bootstrap_form/templatetags *
 recursive-include docs *

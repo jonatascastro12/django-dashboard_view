@@ -15,5 +15,7 @@ Quick start
     INSTALLED_APPS = (
         ...
         'dashboard_view',
+        'crop_image',
+        'bootstrap_form',
     )
 
