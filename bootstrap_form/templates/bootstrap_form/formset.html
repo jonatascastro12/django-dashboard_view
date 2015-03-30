@@ -1,0 +1,32 @@
+{% for form in formset %}
+    <div class="form-inline">
+        {% if form.non_field_errors.0 %}
+        <div class="alert alert-error">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        {% if form.fieldsets %}
+            {% for fieldset in form.fieldsets %}
+                <fieldset class="{{ fieldset.classes }}">
+                    {% if fieldset.legend %}
+                        <legend>{{ fieldset.legend }}</legend>
+                    {% endif %}
+
+                    {%  include 'bootstrap_form/formset_fields.html' with fields=fieldset %}
+                </fieldset>
+            {% endfor %}
+        {% else %}
+            {% include 'bootstrap_form/formset_fields.html' with fields=form %}
+        {% endif %}
+
+        {% if form.errors %}
+        <script type="text/javascript">
+            $('.has-error input').first().focus();
+        </script>
+        {% endif %}
+    </div>
+        &nbsp;
+
+{% endfor %}
+{{ formset.management_form }}

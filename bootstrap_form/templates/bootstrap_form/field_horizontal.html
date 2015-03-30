@@ -1,0 +1,28 @@
+{% load bootstrap_form %}
+<div class="form-group {% if field.errors %}has-error{% endif %} {% if form.errors and not field.errors %}has-success{% endif %} {% if form.errors %}has-feedback{% endif %}">
+    <label class="{{ label_class }}" for="id_{{ field.name }}">
+        {{field.label}}
+    </label>
+    <div class="{{ field_container_class }}">
+        {{ field|add_class:"form-control input-sm" }}
+        {% if form.errors and field.field.widget|klass != 'select' and field.field.widget|klass != 'datetimepicker' %}
+            {% if field.errors %}
+            <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+            <span id="id_{{ field.name }}Status" class="sr-only">(error)</span>
+            {% else %}
+            <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+            <span id="id_{{ field.name }}Status" class="sr-only">(success)</span>
+            {% endif %}
+        {% endif %}
+        {% if field.help_text %}
+            <span class="help-block" title="{{ field.label }}">
+                    {{ field.help_text }}
+            </span><!-- /.help-block -->
+        {% endif %}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <span class="help-block">{{ error|escape }}</span>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>

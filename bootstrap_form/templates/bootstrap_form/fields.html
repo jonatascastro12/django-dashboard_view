@@ -1,0 +1,76 @@
+{% load i18n bootstrap_form %}
+
+{% for field in fields %}
+    {% if field.is_hidden and field.field.widget|klass != 'extendedautoheavyselectwidget'  %}
+        {{ field }}
+    {% else %}
+        <div class="form-group form-group-sm {% if field.errors %}has-error{% endif %} {% if form.errors and not field.errors %}has-success{% endif %} {% if form.errors %}has-feedback{% endif %}">
+            {% if field.field.widget|klass == 'CheckboxInput' or field.field.widget|klass == 'radioselect'%}
+                {% if field.label %}
+                    <label class="col-sm-3 col-lg-2" for="id_{{ field.name }}">
+                        {{ field.label }}
+
+                        {% if field.field.required %}
+                            <span class="required">*</span>
+                        {% endif %}
+
+                        {% if field.help_text %}
+                            <span class="help-block" title="{{ field.label }}">
+                                {{ field.help_text }}
+                            </span><!-- /.help-block -->
+                        {% endif %}
+                    </label>
+                    <div class="col-sm-8 col-lg-4">
+                        {{ field }}
+                    </div>
+                {% endif %}
+
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <span class="help-block">{{ error|escape }}</span>
+                    {% endfor %}
+                {% endif %}
+            {% else %}
+                {% if field.label %}
+                    <label class="col-sm-3 col-lg-2" for="id_{{ field.name }}">
+                        {{ field.label }}
+
+                        {% if field.field.required %}
+                            <span class="required">*</span>
+                        {% endif %}
+                    </label>
+                {% endif %}
+
+                <div class="col-sm-8 col-lg-4">
+                    {{ field|add_class:"form-control" }}
+                    {% if form.errors and field.field.widget|klass != 'select' and field.field.widget|klass != 'datetimepicker' %}
+                        {% if field.errors %}
+                        <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
+                        <span id="id_{{ field.name }}Status" class="sr-only">(error)</span>
+                        {% else %}
+                        <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+                        <span id="id_{{ field.name }}Status" class="sr-only">(success)</span>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if field.field.widget.attrs.append %}
+                        <span class="add-on">
+                            {{ field.field.widget.attrs.append }}
+                        </span>
+                    {% endif %}
+
+                    {% if field.help_text %}
+                        <span class="help-block" title="{{ field.label }}">
+                                {{ field.help_text }}
+                        </span><!-- /.help-block -->
+                    {% endif %}
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                            <span class="help-block">{{ error|escape }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div><!-- /.controls -->
+            {% endif %}
+        </div><!-- /.form-group -->
+    {% endif %}
+{% endfor %}

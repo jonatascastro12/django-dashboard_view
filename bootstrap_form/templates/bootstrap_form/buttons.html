@@ -1,0 +1,8 @@
+{% load i18n %}
+
+<div class="form-group">
+    <div class="{{ class_name }}">
+      {% if submit_label != '' %}<button type="submit" class="btn btn-primary">{{ submit_label }}</button> {% endif %}
+      {% if cancel_label != '' %}<button type="cancel" class="btn btn-default">{{ cancel_label }}</button> {% endif %}
+    </div>
+</div>

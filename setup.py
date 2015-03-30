@@ -11,7 +11,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='django-dashboard_view',
     version='0.1',
-    packages=['dashboard_view'],
+    packages=['dashboard_view', 'bootstrap_form', 'crop_image'],
     include_package_data=True,
     license='BSD License',  # example license
     description='A simple Django app that creates a dashboard bootstrap-based.',
