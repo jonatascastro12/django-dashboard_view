@@ -1,0 +1,34 @@
+{% load i18n %}
+<script type="text/javascript">
+
+
+    function filter_date_range_{{field_name}}_clear(){
+        $('#id_filter_date_range_A_{{ field_name }}').val('');
+        $('#id_filter_date_range_B_{{ field_name }}').val('');
+        filter_date_range_{{ field_name }}_add();
+    }
+
+    function filter_date_range_{{ field_name }}_add(){
+        DashboardFilters.add_filter({
+            field: '{{ field_name }}',
+            filter: 'date_range',
+            data: {
+                date_range_A: $('#id_filter_date_range_A_{{ field_name }}').val(),
+                date_range_B: $('#id_filter_date_range_B_{{ field_name }}').val()
+            },
+            clear: filter_date_range_{{field_name}}_clear
+        });
+    }
+
+    filter_date_range_{{ field_name }}_add();
+
+    $('#id_filter_date_range_A_{{ field_name }}, #id_filter_date_range_B_{{ field_name }}').change(function(){
+        filter_date_range_{{ field_name }}_add();
+    });
+
+    $('#clear_{{ field_name }}_date_range_button').click(function(){
+        filter_date_range_{{ field_name }}_clear();
+        console.log('reloaded');
+        datatableview.initialized_datatables[0].api().ajax.reload();
+    });
+</script>

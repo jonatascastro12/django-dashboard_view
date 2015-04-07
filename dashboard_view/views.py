@@ -1,32 +1,33 @@
 # -*- coding: utf-8 -*-
-import imghdr
 import json
-import os
-from PIL import Image
-from datatableview.views import DatatableMixin
-from django.apps import apps
+from datatableview.utils import split_real_fields, filter_real_fields, get_first_orm_bit, get_field_definition, \
+    resolve_orm_path, FIELD_TYPES, ObjectListResult
+from datatableview.views import DatatableMixin, log
+import dateutil
 from django.contrib import auth, messages
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.db.models.base import Model
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.db.models.fields import Field, FieldDoesNotExist
+from django.db.models.query_utils import Q
 from django.forms.widgets import Media
 from django.http.response import HttpResponse
 from django.template.base import TemplateDoesNotExist
+from django.template.context import Context
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
+from django.utils.text import smart_split
 from django.utils.translation import ugettext as _, pgettext
-from django.views.generic.base import ContextMixin, View, TemplateView
+from django.views.generic.base import ContextMixin, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, FormView, CreateView, DeleteView
 from django.views.generic.list import ListView
+import operator
 import six
-from siscontrole.settings import INSTALLED_APPS
 
 
 class DashboardMenu():
-    app_list = [apps.get_app_config(app) for app in INSTALLED_APPS if
-                not ("django" in app) and not ("nested" in app) and not ("bootstrap" in app) and not ("sorl" in app)]
     menu = []
 
     def __init__(self, menu):
@@ -170,6 +171,10 @@ class DashboardView(ContextMixin):
                         if hasattr(self.model, f[1]):
                             context['fields'].append(Field(verbose_name=f[0].title(), name=f[1]))
 
+        if hasattr(self, 'filters') and self.filters and hasattr(self, 'render_filters_html'):
+            context['filters_html'] = self.render_filters_html()
+            context['filters_js'] = self.render_filters_js()
+
         return context
 
     @method_decorator(login_required)
@@ -178,11 +183,224 @@ class DashboardView(ContextMixin):
 
 
 class DashboardListView(DatatableMixin, ListView, DashboardView):
+    filters = None
+
     def get_datatable_options(self):
         if type(self.datatable_options) is not dict:
             self.datatable_options = {}
         self.datatable_options["structure_template"] = "datatableview/bootstrap_structure.html"
+
+        if "columns" not in self.datatable_options:
+            if self.fields:
+                self.datatable_options["columns"] = self.fields
+
         return self.datatable_options
+
+    def apply_queryset_options(self, queryset):
+        """
+        Interprets the datatable options.
+
+        Options requiring manual massaging of the queryset are handled here.  The output of this
+        method should be treated as a list, since complex options might convert it out of the
+        original queryset form.
+
+        """
+
+        options = self._get_datatable_options()
+
+        # These will hold residue queries that cannot be handled in at the database level.  Anything
+        # in these variables by the end will be handled manually (read: less efficiently)
+        sort_fields = []
+        searches = []
+
+        # This count is for the benefit of the frontend datatables.js
+        total_initial_record_count = queryset.count()
+
+        if options['ordering']:
+            db_fields, sort_fields = split_real_fields(self.model, options['ordering'])
+            queryset = queryset.order_by(*db_fields)
+
+        if options['search']:
+            db_fields, searches = filter_real_fields(self.model, options['columns'],
+                                                     key=get_first_orm_bit)
+            db_fields.extend(options['search_fields'])
+
+            queries = []  # Queries generated to search all fields for all terms
+            search_terms = map(lambda q: q.strip("'\" "), smart_split(options['search']))
+
+            for term in search_terms:
+                term_queries = []  # Queries generated to search all fields for this term
+                # Every concrete database lookup string in 'columns' is followed to its trailing field descriptor.  For example, "subdivision__name" terminates in a CharField.  The field type determines how it is probed for search.
+                for column in db_fields:
+                    column = get_field_definition(column)
+                    for component_name in column.fields:
+                        field_queries = []  # Queries generated to search this database field for the search term
+
+                        field = resolve_orm_path(self.model, component_name)
+                        if isinstance(field, tuple(FIELD_TYPES['text'])):
+                            field_queries = [{component_name + '__icontains': term}]
+                        elif isinstance(field, tuple(FIELD_TYPES['date'])):
+                            try:
+                                date_obj = dateutil.parser.parse(term)
+                            except ValueError:
+                                # This exception is theoretical, but it doesn't seem to raise.
+                                pass
+                            except TypeError:
+                                # Failed conversions can lead to the parser adding ints to None.
+                                pass
+                            else:
+                                field_queries.append({component_name: date_obj})
+
+                            # Add queries for more granular date field lookups
+                            try:
+                                numerical_value = int(term)
+                            except ValueError:
+                                pass
+                            else:
+                                if 0 < numerical_value < 3000:
+                                    field_queries.append({component_name + '__year': numerical_value})
+                                if 0 < numerical_value <= 12:
+                                    field_queries.append({component_name + '__month': numerical_value})
+                                if 0 < numerical_value <= 31:
+                                    field_queries.append({component_name + '__day': numerical_value})
+                        elif isinstance(field, tuple(FIELD_TYPES['boolean'])):
+                            if term.lower() in ('true', 'yes'):
+                                term = True
+                            elif term.lower() in ('false', 'no'):
+                                term = False
+                            else:
+                                continue
+
+                            field_queries = [{component_name: term}]
+                        elif isinstance(field, tuple(FIELD_TYPES['integer'])):
+                            try:
+                                field_queries = [{component_name: int(term)}]
+                            except ValueError:
+                                pass
+                        elif isinstance(field, tuple(FIELD_TYPES['float'])):
+                            try:
+                                field_queries = [{component_name: float(term)}]
+                            except ValueError:
+                                pass
+                        elif isinstance(field, tuple(FIELD_TYPES['ignored'])):
+                            pass
+                        else:
+                            raise ValueError("Unhandled field type for %s (%r) in search." % (component_name, type(field)))
+
+                        # print field_queries
+
+                        # Append each field inspection for this term
+                        term_queries.extend(map(lambda q: Q(**q), field_queries))
+                # Append the logical OR of all field inspections for this term
+                if len(term_queries):
+                    queries.append(reduce(operator.or_, term_queries))
+            # Apply the logical AND of all term inspections
+            if len(queries):
+                queryset = queryset.filter(reduce(operator.and_, queries))
+
+        def get_filters(get):
+            f = []
+            for k, v in get.iteritems():
+                if k.startswith('filter-'):
+                    fk = k.split('-')
+                    f.append({'n': fk[1], 'field': fk[2], 'filter': fk[3], 'data': json.loads(v)})
+            return f
+
+        filters = get_filters(self.request.GET)
+
+        queries = []
+        term_queries = []
+        for f in filters:
+            if f['filter'] == u'date_range':
+                if (f['data']['date_range_A'] != u'' or f['data']['date_range_B'] != u''):
+                    term_queries.append([{f['field'] + '__range': (f['data']['date_range_A'], f['data']['date_range_B'])}])
+
+            if len(term_queries):
+                queries.append(reduce(operator.or_, Q(term_queries)))
+
+        # Apply the logical AND of all term inspections
+        if len(queries):
+            queryset = queryset.filter(reduce(operator.and_, queries))
+
+
+        # TODO: Remove "and not searches" from this conditional, since manual searches won't be done
+        if not sort_fields and not searches:
+            # We can shortcut and speed up the process if all operations are database-backed.
+            object_list = queryset
+            if options['search']:
+                object_list._dtv_unpaged_total = queryset.count()
+            else:
+                object_list._dtv_unpaged_total = total_initial_record_count
+        else:
+            object_list = ObjectListResult(queryset)
+
+            # # Manual searches
+            # # This is broken until it searches all items in object_list previous to the database
+            # # sort. That represents a runtime load that hits every row in code, rather than in the
+            # # database. If enabled, this would cripple performance on large datasets.
+            # if options['i_walk_the_dangerous_line_between_genius_and_insanity']:
+            #     length = len(object_list)
+            #     for i, obj in enumerate(reversed(object_list)):
+            #         keep = False
+            #         for column_info in searches:
+            #             column_index = options['columns'].index(column_info)
+            #             rich_data, plain_data = self.get_column_data(column_index, column_info, obj)
+            #             for term in search_terms:
+            #                 if term.lower() in plain_data.lower():
+            #                     keep = True
+            #                     break
+            #             if keep:
+            #                 break
+            #
+            #         if not keep:
+            #             removed = object_list.pop(length - 1 - i)
+            #             # print column_info
+            #             # print data
+            #             # print '===='
+
+            # Sort the results manually for whatever remaining sort options are left over
+            def data_getter_orm(field_name):
+                def key(obj):
+                    try:
+                        return reduce(getattr, [obj] + field_name.split('__'))
+                    except (AttributeError, ObjectDoesNotExist):
+                        return None
+                return key
+
+            def data_getter_custom(i):
+                def key(obj):
+                    rich_value, plain_value = self.get_column_data(i, options['columns'][i], obj)
+                    return plain_value
+                return key
+
+            # Sort the list using the manual sort fields, back-to-front.  `sort` is a stable
+            # operation, meaning that multiple passes can be made on the list using different
+            # criteria.  The only catch is that the passes must be made in reverse order so that
+            # the "first" sort field with the most priority ends up getting applied last.
+            for sort_field in sort_fields[::-1]:
+                if sort_field.startswith('-'):
+                    reverse = True
+                    sort_field = sort_field[1:]
+                else:
+                    reverse = False
+
+                if sort_field.startswith('!'):
+                    key_function = data_getter_custom
+                    sort_field = int(sort_field[1:])
+                else:
+                    key_function = data_getter_orm
+
+                try:
+                    object_list.sort(key=key_function(sort_field), reverse=reverse)
+                except TypeError as err:
+                    log.error("Unable to sort on {0} - {1}".format(sort_field, err))
+
+            object_list._dtv_unpaged_total = len(object_list)
+
+        object_list._dtv_total_initial_record_count = total_initial_record_count
+        return object_list
+
+
 
     def get_column_data(self, i, name, instance):
         """ Finds the backing method for column ``name`` and returns the generated data. """
@@ -192,6 +410,62 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
             values = (u'<a href="%s">%s</a>' % (instance.get_absolute_url(), values[0]), values[1])
 
         return values
+
+    def render_filter(self, f):
+        field_name = ''
+        filter_label = ''
+        filter_type = ''
+        if type(f) is tuple:
+            filter_label = f[0]
+            field_name = f[1]
+
+            if len(f) > 2:
+                filter_type = f[2]
+            else:
+                filter_type = 'input_text'
+
+        elif f is not None and f != '' and isinstance(f, six.string_types):
+            field_name = f
+            filter_label = f.title()
+            filter_type = 'input_text'
+
+        try:
+            if callable(self.__getattribute__('_render_filter_%s' % filter_type)):
+                return self.__getattribute__('_render_filter_%s' % filter_type)(filter_label, field_name)
+        except AttributeError:
+            return (u'', u'', )
+
+        return ('', '', )
+
+    def _render_filter_date_range(self, filter_label, field_name, datatable_class='datatable'):
+        template_html = get_template('filters/date_range.html')
+        c = Context({
+            'field_name': field_name,
+            'filter_label': filter_label,
+            'datatable_class': datatable_class
+        })
+        template_js = get_template('filters/date_range_js.html')
+
+        return (template_html.render(c), template_js.render(c), )
+
+    def _render_filter_input_text(self, filter_label, field_name):
+        return (field_name, '', )
+
+    def _render_filter_checkbox_choice(self, filter_label, field_name):
+        return (field_name, '', )
+
+    def render_filters_html(self):
+        output = u''
+        for f in self.filters:
+            output += u'<li class="list-group-item">%s</li>' % self.render_filter(f)[0]
+        output = u'<ul id="collapseOne" class="list-group filter-collapse collapse">%s</ul>' % output
+        return mark_safe(output)
+
+    def render_filters_js(self):
+        output = u''
+        for f in self.filters:
+            output += self.render_filter(f)[1]
+        return mark_safe(output)
 
     def delete(self, request):
         if (isinstance(request.body, six.string_types)):

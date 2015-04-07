@@ -58,7 +58,7 @@
 </div>
          &nbsp;
          {% block datatable %}
-           {% if object_list.count <= 100 %}
+           {% if object_list.count <= 1 %}
              <div class="dataTable_wrapper">
                 <table class="datatable table table-striped table-bordered table-hover" id="datatable">
                     <thead>
@@ -82,6 +82,21 @@
                 </table>
              </div>
            {% else %}
+                {% if filters_html %}
+                <div class="filters panel panel-default">
+                    <div class="panel-heading">
+                        <a class="text-muted btn" aria-controls="collapseOne" data-toggle="collapse" data-target=".filter-collapse" href="#collapse" aria-expanded="false">
+                            <span class="fa fa-filter"></span> {% trans 'Filters' %} <span class="fa fa-angle-down"></span>
+                        </a>
+                        <div class="pull-right">
+                            <button id="filter_clear_button" class="btn btn-sm btn-link">{% trans 'Clear' %}</button>
+                            <button id="filter_button" class="btn btn-sm btn-primary">{% trans 'Filter' %}</button>&nbsp;&nbsp;
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                     {{ filters_html }}
+                </div>
+                {% endif %}
                <div class="dataTable_wrapper">
                 {{ datatable }}
                </div>
@@ -112,18 +127,22 @@
 
 {% endblock %}
 <!-- DataTables JavaScript -->
+
+{% block extra_header_scripts %}
+    <!-- DataTables JavaScript -->
+{% endblock %}
+
 {% block js_scripts %}
 
     <!-- Bootstrap Core JavaScript -->
     <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
 
-    <!-- Metis Menu Plugin JavaScript -->
-    <script src="{{STATIC_URL}}js/metisMenu.min.js"></script>
 
-    <!-- DataTables JavaScript -->
-    <script src="{{STATIC_URL}}js/jquery.dataTables.min.js"></script>
+    <script src="{{STATIC_URL}}js/jquery.dataTables.js"></script>
     <script src="{{STATIC_URL}}js/dataTables.bootstrap.min.js"></script>
 
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="{{STATIC_URL}}js/metisMenu.min.js"></script>
 
     <!-- Custom Theme JavaScript -->
     <script src="{{STATIC_URL}}js/sb-admin-2.js"></script>
@@ -159,19 +178,30 @@
         };
     </script>
 
-    {% if object_list.count > 100 %}
-        <script type="text/javascript" charset="utf8" src="{{ STATIC_URL }}js/datatableview.js"></script>
+    {% if object_list.count > 1 %}
+        <script type="text/javascript" charset="utf8" src="{{ STATIC_URL }}js/datatableview_extended.js"></script>
+        <script type="text/javascript" charset="utf8" src="{{ STATIC_URL }}js/filters.js"></script>
+        {{ filters_js }}
         <script>
+            var common_options = {
+                    language: language,
+                    responsive: true,
+                    pageLength: 100,
+                    columnDefs: [
+                        {% for c in fields %}{"name": "{{ c.name }}", "targets": {{ forloop.counter0 }}},
+                        {% endfor %}
+                    ]{% if filters_html %},
+                    fnServerParams: function(aoData){
+                        DashboardFilters.add_datatable_filters(aoData);
+                    }
+                {% endif %}
+                };
             datatableview.auto_initialize = false;
             $(function(){
                 // Or, if there are common options that should be given to all select elements,
                 // you can specify them now.  data-* API attributes will override these options.
-                var common_options = {
-                    language: language,
-                    responsive: true,
-                    pageLength: 100
-                };
-                datatableview.initialize($('.datatable'), common_options);
+
+                datatableview.initialized_datatables.push(datatableview.initialize($('.datatable'), common_options));
             });
         </script>
     {% else %}
@@ -219,11 +249,7 @@
 
         <script>
         $(document).ready(function() {
-            $('.datatable').DataTable({
-                responsive: true,
-                pageLength: 100,
-                language: language
-            });
+            datatableview.initialized_datatables.push($('.datatable').DataTable(common_options));
         });
         </script>
     {% endif %}
