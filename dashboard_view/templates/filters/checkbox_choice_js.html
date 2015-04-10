@@ -1,0 +1,37 @@
+{% load i18n %}
+<script type="text/javascript">
+
+
+    function filter_checkbox_choice_{{field_name}}_clear(){
+        $('input[id^="id_filter_checkbox_choice_{{ field_name }}"]').prop('checked',false);
+        filter_checkbox_choice_{{ field_name }}_add();
+    }
+
+    function filter_checkbox_choice_{{ field_name }}_add(){
+        var values = []
+        var checkeds = $('input[id^="id_filter_checkbox_choice_{{ field_name }}"]:checked');
+        for (var i=0; i<checkeds.length; i++){
+            values.push(checkeds[i].value);
+        }
+        DashboardFilters.add_filter({
+            field: '{{ field_name }}',
+            filter: 'checkbox_choice',
+            data: {
+                values: values,
+            },
+            clear: filter_checkbox_choice_{{field_name}}_clear
+        });
+    }
+
+    filter_checkbox_choice_{{ field_name }}_add();
+
+    $('input[id^="id_filter_checkbox_choice_{{ field_name }}"]').change(function(){
+        filter_checkbox_choice_{{ field_name }}_add();
+    });
+
+    $('#clear_{{ field_name }}_checkbox_choice_button').click(function(){
+        filter_checkbox_choice_{{ field_name }}_clear();
+        console.log('reloaded');
+        datatableview.initialized_datatables[0].api().ajax.reload();
+    });
+</script>

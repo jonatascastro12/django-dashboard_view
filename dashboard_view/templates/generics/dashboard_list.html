@@ -41,6 +41,7 @@
                 {% endfor %}
             {% endif %}
          {% endblock %}
+         {% block selection_actions %}
 <div class="row">
     <div class="col-lg-12">
         <div id="group-multiple-selection" class="btn-group pull-right disabled">
@@ -56,6 +57,7 @@
         </div>
     </div>
 </div>
+         {% endblock %}
          &nbsp;
          {% block datatable %}
            {% if object_list.count <= 1 %}
@@ -85,9 +87,9 @@
                 {% if filters_html %}
                 <div class="filters panel panel-default">
                     <div class="panel-heading">
-                        <a class="text-muted btn" aria-controls="collapseOne" data-toggle="collapse" data-target=".filter-collapse" href="#collapse" aria-expanded="false">
+                        <button class="text-muted btn" aria-controls="collapseOne" data-toggle="collapse" data-target=".filter-collapse" aria-expanded="false">
                             <span class="fa fa-filter"></span> {% trans 'Filters' %} <span class="fa fa-angle-down"></span>
-                        </a>
+                        </button>
                         <div class="pull-right">
                             <button id="filter_clear_button" class="btn btn-sm btn-link">{% trans 'Clear' %}</button>
                             <button id="filter_button" class="btn btn-sm btn-primary">{% trans 'Filter' %}</button>&nbsp;&nbsp;
@@ -125,11 +127,6 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-{% endblock %}
-<!-- DataTables JavaScript -->
-
-{% block extra_header_scripts %}
-    <!-- DataTables JavaScript -->
 {% endblock %}
 
 {% block js_scripts %}

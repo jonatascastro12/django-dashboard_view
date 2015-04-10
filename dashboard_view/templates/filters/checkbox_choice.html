@@ -1,0 +1,13 @@
+{% load i18n %}
+<div class="form-inline">
+    <label>{{ filter_label }} </label>&nbsp;
+    <div class="checkbox">
+        {% for c in choices %}
+            <label>
+                <input class="checkbox" placeholder="" type="checkbox" value="{{ c.0 }}" name="filter_checkbox_choice_{{ field_name }}_{{c.0}}"
+                       id="id_filter_checkbox_choice_{{ field_name }}_{{c.0}}"> {{c.1}}
+            </label>&nbsp;&nbsp;&nbsp;
+        {% endfor %}
+    </div>
+    <button id="clear_{{ field_name }}_checkbox_choice_button" class="text-right pull-right btn-link "><span class="fa fa-close text-muted"></span></button>
+</div>

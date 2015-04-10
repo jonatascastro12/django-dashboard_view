@@ -1,0 +1,9 @@
+{% load i18n %}
+<div class="form-inline">
+    <div class="form-group">
+        <label>{{ filter_label }} </label>&nbsp;
+        <input class="form-control input-sm" placeholder="" type="text" name="filter_input_text_{{ field_name }}"
+               id="id_filter_input_text_{{ field_name }}">
+    </div>
+    <button id="clear_{{ field_name }}_input_text_button" class="text-right pull-right btn-link "><span class="fa fa-close text-muted"></span></button>
+</div>

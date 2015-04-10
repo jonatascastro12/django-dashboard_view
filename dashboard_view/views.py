@@ -25,6 +25,7 @@ from django.views.generic.edit import UpdateView, FormView, CreateView, DeleteVi
 from django.views.generic.list import ListView
 import operator
 import six
+from dashboard_view.listview_filters import DashboardListViewFilters
 
 
 class DashboardMenu():
@@ -171,9 +172,10 @@ class DashboardView(ContextMixin):
                         if hasattr(self.model, f[1]):
                             context['fields'].append(Field(verbose_name=f[0].title(), name=f[1]))
 
-        if hasattr(self, 'filters') and self.filters and hasattr(self, 'render_filters_html'):
-            context['filters_html'] = self.render_filters_html()
-            context['filters_js'] = self.render_filters_js()
+        if hasattr(self, 'filters') and self.filters:
+            filters = DashboardListViewFilters(view=self, filters_list=self.filters)
+            context['filters_html'] = filters.render_filters_html()
+            context['filters_js'] = filters.render_filters_js()
 
         return context
 
@@ -298,30 +300,8 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
             if len(queries):
                 queryset = queryset.filter(reduce(operator.and_, queries))
 
-        def get_filters(get):
-            f = []
-            for k, v in get.iteritems():
-                if k.startswith('filter-'):
-                    fk = k.split('-')
-                    f.append({'n': fk[1], 'field': fk[2], 'filter': fk[3], 'data': json.loads(v)})
-            return f
-
-        filters = get_filters(self.request.GET)
-
-        queries = []
-        term_queries = []
-        for f in filters:
-            if f['filter'] == u'date_range':
-                if (f['data']['date_range_A'] != u'' or f['data']['date_range_B'] != u''):
-                    term_queries.append([{f['field'] + '__range': (f['data']['date_range_A'], f['data']['date_range_B'])}])
-
-            if len(term_queries):
-                queries.append(reduce(operator.or_, Q(term_queries)))
-
-        # Apply the logical AND of all term inspections
-        if len(queries):
-            queryset = queryset.filter(reduce(operator.and_, queries))
-
+        filters = DashboardListViewFilters(self.request.GET)
+        queryset = filters.apply_filters(queryset)
 
         # TODO: Remove "and not searches" from this conditional, since manual searches won't be done
         if not sort_fields and not searches:
@@ -411,61 +391,7 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
 
         return values
 
-    def render_filter(self, f):
-        field_name = ''
-        filter_label = ''
-        filter_type = ''
-        if type(f) is tuple:
-            filter_label = f[0]
-            field_name = f[1]
 
-            if len(f) > 2:
-                filter_type = f[2]
-            else:
-                filter_type = 'input_text'
-
-        elif f is not None and f != '' and isinstance(f, six.string_types):
-            field_name = f
-            filter_label = f.title()
-            filter_type = 'input_text'
-
-        try:
-            if callable(self.__getattribute__('_render_filter_%s' % filter_type)):
-                return self.__getattribute__('_render_filter_%s' % filter_type)(filter_label, field_name)
-        except AttributeError:
-            return (u'', u'', )
-
-        return ('', '', )
-
-    def _render_filter_date_range(self, filter_label, field_name, datatable_class='datatable'):
-        template_html = get_template('filters/date_range.html')
-        c = Context({
-            'field_name': field_name,
-            'filter_label': filter_label,
-            'datatable_class': datatable_class
-        })
-        template_js = get_template('filters/date_range_js.html')
-
-        return (template_html.render(c), template_js.render(c), )
-
-    def _render_filter_input_text(self, filter_label, field_name):
-        return (field_name, '', )
-
-    def _render_filter_checkbox_choice(self, filter_label, field_name):
-        return (field_name, '', )
-
-    def render_filters_html(self):
-        output = u''
-        for f in self.filters:
-            output += u'<li class="list-group-item">%s</li>' % self.render_filter(f)[0]
-        output = u'<ul id="collapseOne" class="list-group filter-collapse collapse">%s</ul>' % output
-        return mark_safe(output)
-
-    def render_filters_js(self):
-        output = u''
-        for f in self.filters:
-            output += self.render_filter(f)[1]
-        return mark_safe(output)
 
     def delete(self, request):
         if (isinstance(request.body, six.string_types)):
