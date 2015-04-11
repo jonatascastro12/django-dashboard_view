@@ -190,7 +190,7 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
     def get_datatable_options(self):
         if type(self.datatable_options) is not dict:
             self.datatable_options = {}
-        self.datatable_options["structure_template"] = "datatableview/bootstrap_structure.html"
+        self.datatable_options["structure_template"] = "datatableview/bootstrap_structure_condensed.html"
 
         if "columns" not in self.datatable_options:
             if self.fields:

@@ -2,6 +2,13 @@ function DashboardFilters(){
 
 }
 
+$('.filters input').keydown(function(e){
+    if (e.keyCode == 13){
+        $(this).change();
+        $('#filter_button').click();
+    }
+});
+
 $('#filter_button').click(function(){
     datatableview.initialized_datatables[0].api().ajax.reload();
 });
