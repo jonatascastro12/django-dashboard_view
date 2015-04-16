@@ -1,0 +1,17 @@
+{% load i18n %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div id="group-multiple-selection" class="btn-group pull-right disabled">
+            <button type="button" id="multiple-selection-action" class="btn btn-info dropdown-toggle" aria-expanded="false" disabled data-toggle="dropdown">{% trans 'Multiple selection action' %}
+                <span class="caret"></span>
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                {% for action in actions %}
+                    <li><a id="{{ action.name }}" href=""><span class="fa fa-{{ action.icon_class }}" aria-hidden="true"></span> {{ action.label}} </a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>

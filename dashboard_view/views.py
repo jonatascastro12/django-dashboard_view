@@ -25,6 +25,7 @@ from django.views.generic.edit import UpdateView, FormView, CreateView, DeleteVi
 from django.views.generic.list import ListView
 import operator
 import six
+from dashboard_view.listview_actions import DashboardListViewActions
 from dashboard_view.listview_filters import DashboardListViewFilters
 
 
@@ -177,6 +178,12 @@ class DashboardView(ContextMixin):
             context['filters_html'] = filters.render_filters_html()
             context['filters_js'] = filters.render_filters_js()
 
+        if hasattr(self, 'actions') and self.actions:
+            actions = DashboardListViewActions(view=self, actions_list=self.actions)
+            context['actions_menu'] = actions.render_group_selection_menu()
+            context['actions_html'] = actions.render_actions_html()
+            context['actions_js'] = actions.render_actions_js()
+
         return context
 
     @method_decorator(login_required)
@@ -186,6 +193,9 @@ class DashboardView(ContextMixin):
 
 class DashboardListView(DatatableMixin, ListView, DashboardView):
     filters = None
+    actions = [
+        'remove'
+    ]
 
     def get_datatable_options(self):
         if type(self.datatable_options) is not dict:
@@ -391,20 +401,10 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
 
         return values
 
+    def post(self, request):
+        actions = DashboardListViewActions(self.request, view=self)
+        return actions.apply_action()
 
-
-    def delete(self, request):
-        if (isinstance(request.body, six.string_types)):
-            data = json.loads(request.body)
-            ids = data.get('ids', None)
-            try:
-                selected_objects = self.model.objects.filter(id__in=ids).all()
-                selected_objects.delete()
-                messages.success(self.request, _('Deleted successfully!'))
-                return HttpResponse(status=200)
-            except:
-                raise
-                return HttpResponse(status=401)
 
 
 class DashboardDetailView(DetailView, DashboardView):

@@ -1,0 +1,39 @@
+{% load i18n %}
+<script type="text/javascript">
+    var erase_objs = [];
+    $('#remove').click(function(e){
+        e.preventDefault();
+        erase_objs = [];
+        $('tr.selected').each(function(i,e){
+            erase_objs.push({
+                'id': $(e).attr('id')
+            });
+        });
+        console.log(erase_objs);
+        if (erase_objs.length > 0){
+            var name = [];
+            for (var i=0; i < erase_objs.length; i++) name.push(erase_objs[i].id);
+            var message = "{% trans 'Do you really want to delete:' %} " + name.join(', ')+"?"
+            $('#remove-confirm-message').text(message);
+            $('#remove-prompt').modal();
+        }
+    });
+
+    $('#remove-confirm').click(function(){
+        var ids = [];
+        for (var i = 0; i < erase_objs.length; i++) ids.push(erase_objs[i].id);
+        $.ajax({
+            url: '{% url list_view %}',
+            type: 'post',
+            data: JSON.stringify({'action': 'remove', data: {'ids': ids} }),
+            success: function(data){
+                $('#remove-prompt').modal('hide');
+                Dashboard.show_message("{% trans 'Deleting...' %}", 'warning');
+                window.location = '{% url list_view %}';
+            },error: function(){
+                $('#remove-prompt').modal('hide');
+                Dashboard.show_message("{% trans 'Some error occurred.' %}", 'danger');
+            }
+        })
+    });
+</script>
