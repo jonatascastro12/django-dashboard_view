@@ -4,24 +4,25 @@ from datatableview.utils import split_real_fields, filter_real_fields, get_first
     resolve_orm_path, FIELD_TYPES, ObjectListResult
 from datatableview.views import DatatableMixin, log
 import dateutil
+from django import forms
 from django.contrib import auth, messages
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
+from django.contrib.auth.views import logout
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models.fields import Field, FieldDoesNotExist
 from django.db.models.query_utils import Q
-from django.forms.widgets import Media
-from django.http.response import HttpResponse
+from django.forms.widgets import Media, PasswordInput
 from django.template.base import TemplateDoesNotExist
-from django.template.context import Context
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
-from django.utils.safestring import mark_safe
 from django.utils.text import smart_split
 from django.utils.translation import ugettext as _, pgettext
-from django.views.generic.base import ContextMixin, TemplateView
+from django.views.generic.base import ContextMixin, TemplateView, RedirectView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import UpdateView, FormView, CreateView, DeleteView
+from django.views.generic.edit import UpdateView, FormView, CreateView
 from django.views.generic.list import ListView
 import operator
 import six
@@ -444,3 +445,46 @@ class DashboardOverviewView(TemplateView, DashboardView):
 
 class DashboardProfileView(TemplateView, DashboardView):
     template_name = "dashboard_base.html"
+
+
+class LoginForm(forms.Form):
+    username = forms.CharField(label=_("Username/Email"))
+    password = forms.CharField(label=_("Password"), widget=PasswordInput)
+
+class LoginView(FormView):
+    form_class = LoginForm
+    success_url = reverse_lazy('dashboard_overview')
+    template_name = "login.html"
+
+    def get_success_url(self):
+        next = self.request.GET.get('next', False)
+        if next:
+            return next
+        return super(LoginView, self).get_success_url()
+
+    def form_valid(self, form):
+        username = form.cleaned_data.get('username', '')
+        password = form.cleaned_data.get('password', '')
+
+        if '@' in username:
+            user = User.objects.filter(email=username).first()
+            if user is not None:
+                username = user.username
+
+        user = auth.authenticate(username=username, password=password)
+
+        if user is None:
+            raise ValidationError(_("Invalid username or password"), code='invalid_username_or_password')
+        if not user.is_active:
+            raise ValidationError(_("User is not active"), code='user_is_not_active')
+
+        login(self.request, user)
+        return super(LoginView, self).form_valid(form)
+
+class LogoutView(RedirectView):
+    url = reverse_lazy('login')
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_anonymous():
+            logout(request)
+        return super(LogoutView, self).get(request, *args, **kwargs)
