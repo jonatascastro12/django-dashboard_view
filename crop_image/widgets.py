@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms.widgets import TextInput
 from django.template.context import Context
 from django.template.loader import get_template
@@ -63,7 +64,7 @@ class JCropImageWidget(TextInput):
             value = UploadedCropImage(data=value)
         t = get_template("jcrop/jcrop_image_widget.html")
         substitutions = {
-            "upload_url": self.attrs.get('url', False),
+            "upload_url": reverse_lazy('upload_photo'),
             "input_name": name,
             "image_value": value if value is not None else '',
             "image_crop_data_value": value.crop_data if value is not None else '',

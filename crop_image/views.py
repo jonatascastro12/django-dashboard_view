@@ -5,11 +5,9 @@ from PIL import Image
 from django.conf import settings
 from django.core.files.temp import NamedTemporaryFile
 from django.http.response import HttpResponse
-from siscontrole import errors
+from dashboard_view import errors
 
 # Create your views here.
-
-
 def image_upload(request):
     upload_to = ''
     if 'upload_to' in request.POST:

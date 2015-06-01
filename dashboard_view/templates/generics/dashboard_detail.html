@@ -1,19 +1,20 @@
 {% extends "dashboard_base.html" %}
 {% load i18n %}
 {% load bootstrap_form %}
+{% load staticfiles %}
 
 {% block css_scripts %}
     <!-- Bootstrap Core CSS -->
-    <link href="{{STATIC_URL}}css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 
     <!-- MetisMenu CSS -->
-    <link href="{{STATIC_URL}}css/metisMenu.min.css" rel="stylesheet">
+    <link href="{% static 'css/metisMenu.min.css' %}" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="{{STATIC_URL}}css/sb-admin-2.css" rel="stylesheet">
+    <link href="{% static 'css/sb-admin-2.css' %}" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="{{STATIC_URL}}css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block page_content %}
@@ -44,13 +45,13 @@
 {% block js_scripts %}
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
     <!-- Metis Menu Plugin JavaScript -->
-    <script src="{{STATIC_URL}}js/metisMenu.min.js"></script>
+    <script src="{% static 'js/metisMenu.min.js' %}"></script>
 
     <!-- Custom Theme JavaScript -->
-    <script src="{{STATIC_URL}}js/sb-admin-2.js"></script>
+    <script src="{% static 'js/sb-admin-2.js' %}"></script>
 
     <script type="text/javascript">
         $('button[type="cancel"]').click(function(e){
