@@ -16,7 +16,9 @@ class UploadedCropImage():
     original_path = None
     crop_data = None
     def __init__(self, data=None, path=None, original_path=None, crop_data=None, *args, **kwargs):
-        if data is None:
+        if data is None and original_path == '':
+            self = None
+        elif data is None:
             self.path = path
             self.original_path = original_path
             self.crop_data = crop_data
@@ -49,8 +51,6 @@ class JCropImageWidget(TextInput):
                 self.ratio = kwargs['attrs'].pop('ratio')
             if 'jquery_alias' in kwargs['attrs']:
                 self.jquery_alias = kwargs['attrs'].pop('jquery_alias')
-            if 'url' in kwargs['attrs']:
-                self.url = kwargs['attrs'].pop('url')
 
         return super(JCropImageWidget, self).__init__(*args, **kwargs)
 
@@ -62,6 +62,7 @@ class JCropImageWidget(TextInput):
     def render(self, name, value, attrs=None):
         if isinstance(value, six.string_types) and value != '':
             value = UploadedCropImage(data=value)
+
         t = get_template("jcrop/jcrop_image_widget.html")
         substitutions = {
             "upload_url": reverse_lazy('upload_photo'),
@@ -69,7 +70,7 @@ class JCropImageWidget(TextInput):
             "image_value": value if value is not None else '',
             "image_crop_data_value": value.crop_data if value is not None else '',
             "image_original_value": value.original_path if value is not None else '',
-            "upload_to": attrs['upload_to'] if 'upload_to' in attrs else '',
+            "upload_to": self.attrs['upload_to'] if 'upload_to' in self.attrs else '',
             "ratio": self.ratio,
             "jquery_alias": self.jquery_alias,
             "MEDIA_URL": settings.MEDIA_URL,

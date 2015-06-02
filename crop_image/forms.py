@@ -39,8 +39,10 @@ class CropImageModelField(Field):
     __metaclass__ = SubfieldBase
     description = "Field to store the cropped image path, the cropping data, and the original image path"
 
-    def __init__(self, upload_to='', url='', *args, **kwargs):
+    def __init__(self, upload_to='', *args, **kwargs):
         kwargs['max_length'] = 255
+        if 'url' in kwargs:
+            del kwargs['url']
         self.upload_to = upload_to
         super(CropImageModelField, self).__init__(*args, **kwargs)
 
@@ -51,7 +53,6 @@ class CropImageModelField(Field):
         name, path, args, kwargs = super(CropImageModelField, self).deconstruct()
         del kwargs["max_length"]
         kwargs["upload_to"] = self.upload_to
-        kwargs["url"] = self.url
         return name, path, args, kwargs
 
     def to_python(self, value):

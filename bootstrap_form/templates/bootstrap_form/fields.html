@@ -7,7 +7,7 @@
         <div class="form-group form-group-sm {% if field.errors %}has-error{% endif %} {% if form.errors and not field.errors %}has-success{% endif %} {% if form.errors %}has-feedback{% endif %}">
             {% if field.field.widget|klass == 'CheckboxInput' or field.field.widget|klass == 'radioselect'%}
                 {% if field.label %}
-                    <label class="col-sm-3 col-lg-2" for="id_{{ field.name }}">
+                    <label class="col-sm-3 col-lg-2 control-label" for="id_{{ field.name }}">
                         {{ field.label }}
 
                         {% if field.field.required %}
@@ -32,7 +32,7 @@
                 {% endif %}
             {% else %}
                 {% if field.label %}
-                    <label class="col-sm-3 col-lg-2" for="id_{{ field.name }}">
+                    <label class="col-sm-3 col-lg-2 control-label" for="id_{{ field.name }}">
                         {{ field.label }}
 
                         {% if field.field.required %}

@@ -5,6 +5,7 @@ from django.template import Context
 from django.template.loader import get_template
 from django.utils.translation import ugettext as _
 import itertools
+import six
 
 register = template.Library()
 
@@ -20,7 +21,8 @@ def as_bootstrap(entity, layout="horizontal"):
         template = get_template('bootstrap_form/form.html')
 
         c = Context({
-            'form': entity
+            'form': entity,
+            'label_class': 'control-label',
         })
     else:
         if ',' in layout:
@@ -73,9 +75,10 @@ def buttons(submit_label=_('Save'), cancel_label=_('Cancel'), class_name='col-sm
 
 @register.filter
 def add_class(field, class_name):
-    return field.as_widget(attrs={
-        "class": " ".join((field.css_classes(), class_name))
-    })
+    if not isinstance(field, six.string_types):
+        return field.as_widget(attrs={
+            "class": " ".join((field.css_classes(), class_name))
+        })
 
 @register.filter
 def add_placeholder(field, placeholder):

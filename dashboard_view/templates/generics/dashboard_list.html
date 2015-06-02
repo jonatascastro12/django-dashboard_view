@@ -188,7 +188,7 @@
         });
     </script>
     {% if object_list.count > 1 %}
-        <script type="text/javascript" charset="utf8" src="{{ STATIC_URL }}js/datatableview_extended.js"></script>
+        <script type="text/javascript" charset="utf8" src="{% static "js/datatableview_extended.js" %}"></script>
         <script>
             var common_options = {
                     language: language,

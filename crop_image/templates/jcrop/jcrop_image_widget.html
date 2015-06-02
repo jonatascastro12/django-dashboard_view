@@ -24,7 +24,7 @@
         <div id="image-upload-panel-{{ input_name}}" class="panel" style="display:none">
             {% if image_value and image_value.path|length > 0  %}
             <span class="{{ input_name }} jcrop_panel">
-              <img src="{{ image_value }}" class="img-responsive" id="jcrop_target_{{ input_name }}" />
+              <img src="{{MEDIA_URL}}{{ image_value }}" class="img-responsive" id="jcrop_target_{{ input_name }}" />
             </span>
             {% endif %}
         </div>
@@ -132,7 +132,9 @@ var script_{{input_name}} = setInterval(function(){
                 if (!event.target.value)
                     return
 
-                if (event.target.value.split(".").pop().toUpperCase() != 'JPG'){
+                if (event.target.value.split(".").pop().toUpperCase() != 'JPG' &&
+                    event.target.value.split(".").pop().toUpperCase() != 'JPEG' &&
+                    event.target.value.split(".").pop().toUpperCase() != 'PNG'){
                     event.target.value = '';
                     $('#id_{{input_name}}').popover({
                         'content': '{% trans 'Only .jpg extension is permitted.' %}',
@@ -178,7 +180,7 @@ var script_{{input_name}} = setInterval(function(){
                         var img = new Image();
                         img.id = "jcrop_target_{{ input_name}}";
                         img.className = 'img-responsive';
-                        img.src = data;
+                        img.src = "{{ MEDIA_URL }}" + data;
 
                         $('#image-upload-panel-{{input_name}}').append(img);
                         $('#image-upload-panel-{{input_name}}').show();
@@ -259,7 +261,7 @@ var script_{{input_name}} = setInterval(function(){
                         $('#id_{{input_name}}').val(data);
 
                         window['jcrop_{{ input_name }}'].destroy();
-                        $('#jcrop_target_{{input_name}}').attr('src',data+'?'+(new Date()).getTime());
+                        $('#jcrop_target_{{input_name}}').attr('src',"{{ MEDIA_URL }}" + data+'?'+(new Date()).getTime());
                         $('#jcrop_target_{{input_name}}').css('height', '');
                         $('#jcrop_target_{{input_name}}').css('width', '');
                     }
@@ -274,7 +276,7 @@ var script_{{input_name}} = setInterval(function(){
                 $('#define-photo-{{input_name}}').html('{%trans 'Define photo' %}');
                 $('#define-photo-{{input_name}}').fadeIn();
 
-                $('#jcrop_target_{{input_name}}').attr('src',$('#id_{{ input_name }}_original').val());
+                $('#jcrop_target_{{input_name}}').attr('src',"{{ MEDIA_URL }}" + $('#id_{{ input_name }}_original').val());
                 var img = $('#jcrop_target_{{input_name}}').get(0);
 
                 var crop_data;
