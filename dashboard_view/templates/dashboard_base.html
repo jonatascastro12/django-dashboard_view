@@ -10,7 +10,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SisControle</title>
+    <title>{% block title %}SisControle{% endblock %}</title>
 
     {% block css_scripts %}
     <!-- Bootstrap Core CSS -->
@@ -60,7 +60,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <!-- TODO: LOGO -->
-                <a class="navbar-brand" href="index.html">SisControle</a>
+                <a class="navbar-brand" href="index.html">{% block page_title %}SisControle{% endblock %}</a>
             </div>
             <!-- /.navbar-header -->
 
