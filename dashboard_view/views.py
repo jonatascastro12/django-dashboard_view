@@ -153,7 +153,7 @@ class DashboardView(ContextMixin):
             if self.datatable_options is not None:
                 self.fields = self.datatable_options['columns']
 
-        if self.fields:
+        if hasattr(self, 'fields') and self.fields is not None:
             '''for f in fields:
                 if f.name in self.fields:
                     context['fields'].append(f)'''
