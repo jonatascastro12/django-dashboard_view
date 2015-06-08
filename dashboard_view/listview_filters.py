@@ -65,12 +65,18 @@ class DashboardListViewFilters:
             elif len(f) > 2:
                 filter_type = f[2]
             else:
-                filter_type = 'input_text'
+                if (self.view.model._meta.get_field_by_name(field_name)[0].choices is not None):
+                    filter_type = 'checkbox_choice'
+                else:
+                    filter_type = 'input_text'
 
         elif f is not None and f != '' and isinstance(f, six.string_types):
             field_name = f
             filter_label = f.title()
-            filter_type = 'input_text'
+            if (self.view.model._meta.get_field_by_name(field_name)[0].choices is not None):
+                filter_type = 'checkbox_choice'
+            else:
+                filter_type = 'input_text'
 
         try:
             if callable(getattr(self, '_render_filter_%s' % filter_type, None)):

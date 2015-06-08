@@ -62,7 +62,7 @@ class DashboardMenu():
                     icon_class = child_item.get('icon_class', '')
                     verbose_name = child_item.get('verbose_name', child_item['name'])
                     arrow = '<span class="fa arrow"></span>' if 'children' in child_item else ''
-                    output += u'<li><a href="{0}" class="{1}"><i class="fa {2}' \
+                    output += u'<li><a href="{0}" class="{1}"><i class="fa {2} ' \
                               u'fa-fw"></i>{3} {4}</a>'.format(link, '', icon_class, verbose_name, arrow)
                     if 'children' in child_item:
                         output += u'<ul class="nav nav-third-level">'  # .format(' open' if active != '' else '')
@@ -74,7 +74,7 @@ class DashboardMenu():
                                 active = 'active' if link._proxy____args[0] == request.resolver_match.view_name else ''
                             icon_class = third_level.get('icon_class', '')
                             verbose_name = third_level.get('verbose_name', third_level['name'])
-                            output += u'<li><a href="{0}" class="{1}"><i class="fa {2}' \
+                            output += u'<li><a href="{0}" class="{1}"><i class="fa {2} ' \
                                       u'fa-fw"></i>{3}</a></li>'.format(link, '', icon_class, verbose_name)
                         output += u'</ul>'
                     output += u'</li>'
@@ -167,12 +167,19 @@ class DashboardView(ContextMixin):
                             context['fields'].append(Field(verbose_name=f.title(), name=f))
                 else:
                     try:
-                        field = self.model._meta.get_field_by_name(f[1])[0]
+                        if type(f[1]) is list:
+                            field = self.model._meta.get_field_by_name(f[1][0])[0]
+                        else:
+                            field = self.model._meta.get_field_by_name(f[1])[0]
                         field.verbose_name = f[0]
                         context['fields'].append(field)
                     except FieldDoesNotExist:
-                        if hasattr(self.model, f[1]):
-                            context['fields'].append(Field(verbose_name=f[0].title(), name=f[1]))
+                        if type(f[1]) is list:
+                            if hasattr(self.model, f[1][0]):
+                                context['fields'].append(Field(verbose_name=f[0].title(), name=f[1][0]))
+                        else:
+                            if hasattr(self.model, f[1]):
+                                context['fields'].append(Field(verbose_name=f[0].title(), name=f[1]))
 
         if hasattr(self, 'filters') and self.filters:
             filters = DashboardListViewFilters(view=self, filters_list=self.filters)
@@ -249,7 +256,11 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
                     for component_name in column.fields:
                         field_queries = []  # Queries generated to search this database field for the search term
 
-                        field = resolve_orm_path(self.model, component_name)
+                        try:
+                            field = resolve_orm_path(self.model, component_name)
+                        except FieldDoesNotExist:
+                            field = None
+
                         if isinstance(field, tuple(FIELD_TYPES['text'])):
                             field_queries = [{component_name + '__icontains': term}]
                         elif isinstance(field, tuple(FIELD_TYPES['date'])):
@@ -298,7 +309,8 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
                         elif isinstance(field, tuple(FIELD_TYPES['ignored'])):
                             pass
                         else:
-                            raise ValueError("Unhandled field type for %s (%r) in search." % (component_name, type(field)))
+                            #raise ValueError("Unhandled field type for %s (%r) in search." % (component_name, type(field)))
+                            pass
 
                         # print field_queries
 

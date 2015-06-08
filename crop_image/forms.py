@@ -14,6 +14,7 @@ class CropImageFormField(forms.Field):
 
     def __init__(self, *args, **kwargs):
         self.upload_to = kwargs.pop('upload_to', False)
+        self.required = False
         super(CropImageFormField, self).__init__(*args, **kwargs)
 
     def widget_attrs(self, widget):
