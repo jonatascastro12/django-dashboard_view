@@ -129,8 +129,7 @@ class DashboardView(ContextMixin):
                          pgettext('male', 'New')) + u' ' + self.model._meta.verbose_name
 
         if self.template_name_suffix == '_form' and self.object:
-            context[
-                'page_name'] = self.model._meta.verbose_name + u' <small>' + self.object.__unicode__() + \
+            context['page_name'] = self.model._meta.verbose_name + u' <small>' + self.object.__unicode__() + \
                                u' <span class="label label-warning">' + _('Editing') + u'</span></small> '
         elif self.template_name_suffix == '_detail':
             context['page_name'] = self.model._meta.verbose_name + u' <small>' + self.object.__unicode__() + \
@@ -141,7 +140,7 @@ class DashboardView(ContextMixin):
         elif self.template_name_suffix == '_form':
             context['page_name'] = new_title
         else:
-            context['page_name'] = self.model._meta.verbose_name_plural + \
+            context['page_name'] = self.model._meta.verbose_name_plural.title() + \
                                    u'<a href="' + reverse(context['add_view']) + \
                                    u'" class="btn pull-right btn-success">' + \
                                    new_title + u'</a>'
