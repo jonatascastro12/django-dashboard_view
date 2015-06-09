@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import logout
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy, NoReverseMatch
 from django.db.models.fields import Field, FieldDoesNotExist
 from django.db.models.query_utils import Q
 from django.forms.widgets import Media, PasswordInput
@@ -26,6 +26,7 @@ from django.views.generic.edit import UpdateView, FormView, CreateView
 from django.views.generic.list import ListView
 import operator
 import six
+from dashboard_view.detailview_actions import DashboardDetailViewActions
 from dashboard_view.listview_actions import DashboardListViewActions
 from dashboard_view.listview_filters import DashboardListViewFilters
 
@@ -96,6 +97,7 @@ class DashboardMenu():
 
 class DashboardView(ContextMixin):
     menu = []
+    widget_class = None
 
     def get_context_data(self, **kwargs):
         context = super(DashboardView, self).get_context_data(**kwargs)
@@ -129,14 +131,12 @@ class DashboardView(ContextMixin):
                          pgettext('male', 'New')) + u' ' + self.model._meta.verbose_name
 
         if self.template_name_suffix == '_form' and self.object:
-            context['page_name'] = self.model._meta.verbose_name + u' <small>' + self.object.__unicode__() + \
+            context['page_name'] = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
                                u' <span class="label label-warning">' + _('Editing') + u'</span></small> '
         elif self.template_name_suffix == '_detail':
-            context['page_name'] = self.model._meta.verbose_name + u' <small>' + self.object.__unicode__() + \
-                                   u'</small><a href="' + reverse(context['edit_view'], None, (),
-                                                                  {'pk': self.object.pk}) + \
-                                   u'" class="btn pull-right btn-primary">' + \
-                                   _('Editar') + u'</a>'
+            context['page_name'] = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
+                                   u'</small>'
+
         elif self.template_name_suffix == '_form':
             context['page_name'] = new_title
         else:
@@ -185,8 +185,13 @@ class DashboardView(ContextMixin):
             context['filters_html'] = filters.render_filters_html()
             context['filters_js'] = filters.render_filters_js()
 
-        if hasattr(self, 'actions') and self.actions:
+        if hasattr(self, 'actions') and self.actions and not self.template_name_suffix == '_detail':
             actions = DashboardListViewActions(view=self, actions_list=self.actions)
+            context['actions_menu'] = actions.render_group_selection_menu()
+            context['actions_html'] = actions.render_actions_html()
+            context['actions_js'] = actions.render_actions_js()
+        elif hasattr(self, 'actions') and self.actions and self.template_name_suffix == '_detail':
+            actions = DashboardDetailViewActions(view=self, actions_list=self.actions)
             context['actions_menu'] = actions.render_group_selection_menu()
             context['actions_html'] = actions.render_actions_html()
             context['actions_js'] = actions.render_actions_js()
@@ -201,7 +206,7 @@ class DashboardView(ContextMixin):
 class DashboardListView(DatatableMixin, ListView, DashboardView):
     filters = None
     actions = [
-        'remove'
+        'remove',
     ]
 
     def get_datatable_options(self):
@@ -402,8 +407,6 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
         object_list._dtv_total_initial_record_count = total_initial_record_count
         return object_list
 
-
-
     def get_column_data(self, i, name, instance):
         """ Finds the backing method for column ``name`` and returns the generated data. """
         values = super(DashboardListView, self).get_column_data(i, name, instance)
@@ -420,7 +423,13 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
 
 
 class DashboardDetailView(DetailView, DashboardView):
-    pass
+    actions = [
+        'edit', 'print', 'remove',
+    ]
+
+    def post(self, request):
+        actions = DashboardDetailViewActions(self.request, view=self)
+        return actions.apply_action()
 
 
 class DashboardCreateView(CreateView, DashboardView):
@@ -454,6 +463,15 @@ class DashboardUpdateView(UpdateView, DashboardView):
 class DashboardOverviewView(TemplateView, DashboardView):
     template_name = "dashboard_base.html"
 
+    def get_context_data(self, **kwargs):
+        context = super(DashboardOverviewView, self).get_context_data(**kwargs)
+        widgets = self.widget_class(self.widgets_list)
+        rendered = widgets.render_widgets(self.request)
+        context['dashboard_widgets_html'] = rendered[0]
+        context['dashboard_widgets_js'] = rendered[1]
+
+        return context
+
 class DashboardProfileView(TemplateView, DashboardView):
     template_name = "dashboard_base.html"
 
@@ -473,24 +491,31 @@ class LoginView(FormView):
             return next
         return super(LoginView, self).get_success_url()
 
-    def form_valid(self, form):
-        username = form.cleaned_data.get('username', '')
-        password = form.cleaned_data.get('password', '')
+    def post(self, request, *args, **kwargs):
 
-        if '@' in username:
-            user = User.objects.filter(email=username).first()
-            if user is not None:
-                username = user.username
+        form = LoginForm(request.POST)
 
-        user = auth.authenticate(username=username, password=password)
+        if form.is_valid():
+            username = form.cleaned_data.get('username', '')
+            password = form.cleaned_data.get('password', '')
 
-        if user is None:
-            raise ValidationError(_("Invalid username or password"), code='invalid_username_or_password')
-        if not user.is_active:
-            raise ValidationError(_("User is not active"), code='user_is_not_active')
+            if '@' in username:
+                user = User.objects.filter(email=username).first()
+                if user is not None:
+                    username = user.username
 
-        login(self.request, user)
-        return super(LoginView, self).form_valid(form)
+            user = auth.authenticate(username=username, password=password)
+
+            if user is None:
+                form.add_error(None, _("Invalid username or password"))
+                return super(LoginView, self).form_invalid(form)
+            if not user.is_active:
+                form.add_error(None, _("User is not active"))
+                return super(LoginView, self).form_invalid(form)
+            login(self.request, user)
+            return super(LoginView, self).form_valid(form)
+        return super(LoginView, self).form_invalid(form)
+
 
 class LogoutView(RedirectView):
     url = reverse_lazy('login')

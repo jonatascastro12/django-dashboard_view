@@ -48,28 +48,11 @@
          {% endblock %}
          &nbsp;
          {% block datatable %}
-           {% if object_list.count <= 1 %}
+           {% if object_list.count == 0 %}
              <div class="dataTable_wrapper">
-                <table class="datatable table table-striped table-bordered table-hover" id="datatable">
-                    <thead>
-                        <tr>
-                            {% for field in fields %}
-                                <th>{{ field.verbose_name }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for o in object_list %}
-                            <tr>
-                                {% for field in fields %}
-                                    <td attr_name="obj_{{ field.name }}">
-                                        <a href="{{ o.get_absolute_url }}">{{ o|getattr:field.name|safe}}</a>
-                                    </td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                 <div class="alert alert-warning">
+                    {% trans 'No records found.' %}
+                </div>
              </div>
            {% else %}
                 {% if filters_html %}
@@ -187,37 +170,30 @@
             }
         });
     </script>
-    {% if object_list.count > 1 %}
-        <script type="text/javascript" charset="utf8" src="{% static "js/datatableview_extended.js" %}"></script>
-        <script>
-            var common_options = {
-                    language: language,
-                    responsive: true,
-                    pageLength: 100,
-                    columnDefs: [
-                        {% for c in fields %}{"name": "{{ c.name }}", "targets": {{ forloop.counter0 }}},
-                        {% endfor %}
-                    ]{% if filters_html %},
-                    fnServerParams: function(aoData){
-                        DashboardFilters.add_datatable_filters(aoData);
-                    }
-                {% endif %}
-                };
-            datatableview.auto_initialize = false;
-            $(function(){
-                // Or, if there are common options that should be given to all select elements,
-                // you can specify them now.  data-* API attributes will override these options.
+    <script type="text/javascript" charset="utf8" src="{% static "js/datatableview_extended.js" %}"></script>
+    <script>
+        var common_options = {
+                language: language,
+                responsive: true,
+                pageLength: 100,
+                columnDefs: [
+                    {% for c in fields %}{"name": "{{ c.name }}", "targets": {{ forloop.counter0 }}},
+                    {% endfor %}
+                ]{% if filters_html %},
+                fnServerParams: function(aoData){
+                    DashboardFilters.add_datatable_filters(aoData);
+                }
+            {% endif %}
+            };
+        datatableview.auto_initialize = false;
+        $(function(){
+            // Or, if there are common options that should be given to all select elements,
+            // you can specify them now.  data-* API attributes will override these options.
 
-                datatableview.initialized_datatables.push(datatableview.initialize($('.datatable'), common_options));
-            });
-        </script>
-    {% else %}
-        <script>
-        $(document).ready(function() {
-            datatableview.initialized_datatables.push($('.datatable').DataTable(common_options));
+            datatableview.initialized_datatables.push(datatableview.initialize($('.datatable'), common_options));
         });
-        </script>
-    {% endif %}
+    </script>
+
     {{ actions_js }}
     <script>
         $(document).ready(function() {

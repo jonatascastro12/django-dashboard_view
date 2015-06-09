@@ -1,0 +1,7 @@
+{% load i18n %}
+<script type="text/javascript">
+    $('#edit').click(function(e){
+        e.preventDefault();
+        window.location = "{% url edit_view obj_id %}";
+    });
+</script>

@@ -1,5 +1,6 @@
 import json
 import operator
+from django.db.models.fields.related import ForeignKey
 from django.db.models.query_utils import Q
 from django.template.context import Context
 from django.template.loader import get_template
@@ -112,7 +113,14 @@ class DashboardListViewFilters:
         template_html = get_template('filters/checkbox_choice.html')
 
         if choices is None:
-            choices = self.view.model._meta.get_field_by_name(field_name)[0].choices
+            field = self.view.model._meta.get_field_by_name(field_name)
+            if isinstance(field[0], ForeignKey):
+                related_objs = field[0].related.model.objects.all()
+                choices = []
+                for obj in related_objs:
+                    choices.append((obj.id, obj.__unicode__()))
+            else:
+                choices = field[0].choices
 
         c = Context({
             'field_name': field_name,
@@ -136,7 +144,6 @@ class DashboardListViewFilters:
         for f in self.filters_list:
             output += self.render_filter(f)[1]
         return mark_safe(output)
-
 
     def apply_filters(self, queryset):
         term_queries = []
