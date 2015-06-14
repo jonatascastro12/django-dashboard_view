@@ -459,6 +459,9 @@ class DashboardUpdateView(UpdateView, DashboardView):
         messages.success(self.request, message=model_name + ' ' + object_name + _(' updated successfully!'))
         return super(DashboardUpdateView, self).form_valid(form)
 
+class DashboardReportView(DashboardFormView):
+    template_name = "generics/dashboard_report.html"
+
 
 class DashboardOverviewView(TemplateView, DashboardView):
     template_name = "dashboard_base.html"
@@ -471,6 +474,7 @@ class DashboardOverviewView(TemplateView, DashboardView):
         context['dashboard_widgets_js'] = rendered[1]
 
         return context
+
 
 class DashboardProfileView(TemplateView, DashboardView):
     template_name = "dashboard_base.html"
