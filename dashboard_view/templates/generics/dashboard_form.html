@@ -23,6 +23,16 @@
         {% block page_content_title %}<h1 class="page-header">{{ page_name|safe }}</h1>{% endblock %}
     </div>
 </div>
+{% block message %}
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags %}{{ message.tags }} alert-dismissible"{% endif %}>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+ {% endblock %}
 {% block form %}
 <form class="form-horizontal" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
