@@ -18,6 +18,7 @@ from django.forms.widgets import Media, PasswordInput
 from django.template.base import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
 from django.utils.text import smart_split
 from django.utils.translation import ugettext as _, pgettext
 from django.views.generic.base import ContextMixin, TemplateView, RedirectView
@@ -107,6 +108,9 @@ class DashboardView(ContextMixin):
         context['media_css'] = Media()
         context['media_js'] = Media()
 
+        if hasattr(self, 'verbose_name'):
+            context['page_name'] = self.verbose_name + mark_safe(' <small>' + _('Report') + '</small>')
+
         if not hasattr(self, 'model'):
             return context
 
@@ -115,7 +119,6 @@ class DashboardView(ContextMixin):
                 self.model._meta.app_label + '/' + self.model._meta.model_name + self.template_name_suffix + '.html')
         except TemplateDoesNotExist:
             self.template_name = 'generics/dashboard' + self.template_name_suffix + '.html'
-
 
         context['list_view'] = self.request.resolver_match.view_name. \
             replace('_edit', '').replace('_add', '').replace('_detail', '')

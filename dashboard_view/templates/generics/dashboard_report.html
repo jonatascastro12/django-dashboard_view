@@ -48,6 +48,39 @@
          {% endblock %}
          &nbsp;
     </div>
+</div>
+<div class="row">
+    {% block form %}
+    <form class="form-horizontal" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|as_bootstrap}}
+            {% buttons 'Gerar' %}
+    </form>
+    {% endblock %}
+</div>
+{% if objects %}
+<div class="row">
+    <hr>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>
+                {% trans 'Name' %}
+            </th>
+            <th>
+                {% trans 'Day' %}
+            </th>
+        </tr>
+        </thead>
+        {% for obj in objects %}
+            <tr>
+                <td>{{ obj.user.get_full_name }}</td>
+                <td>{{ obj.birth_date|date:"d" }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
 
 
 {% endblock %}
