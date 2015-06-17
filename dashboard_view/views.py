@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse, reverse_lazy, NoReverseMatch
 from django.db.models.fields import Field, FieldDoesNotExist
 from django.db.models.query_utils import Q
 from django.forms.widgets import Media, PasswordInput
+from django.http.response import HttpResponseRedirect
 from django.template.base import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
@@ -462,8 +463,6 @@ class DashboardUpdateView(UpdateView, DashboardView):
         messages.success(self.request, message=model_name + ' ' + object_name + _(' updated successfully!'))
         return super(DashboardUpdateView, self).form_valid(form)
 
-class DashboardReportView(DashboardFormView):
-    template_name = "generics/dashboard_report.html"
 
 
 class DashboardOverviewView(TemplateView, DashboardView):
