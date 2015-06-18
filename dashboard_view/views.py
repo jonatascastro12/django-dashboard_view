@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 from datatableview.utils import split_real_fields, filter_real_fields, get_first_orm_bit, get_field_definition, \
     resolve_orm_path, FIELD_TYPES, ObjectListResult
 from datatableview.views import DatatableMixin, log
@@ -10,8 +9,8 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import logout
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.urlresolvers import reverse, reverse_lazy, NoReverseMatch
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models.fields import Field, FieldDoesNotExist
 from django.db.models.query_utils import Q
 from django.forms.widgets import Media, PasswordInput
@@ -21,7 +20,7 @@ from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.utils.text import smart_split
 from django.utils.translation import ugettext as _, pgettext
-from django.views.generic.base import ContextMixin, TemplateView, RedirectView
+from django.views.generic.base import ContextMixin, TemplateView, RedirectView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, FormView, CreateView
 from django.views.generic.list import ListView
@@ -32,70 +31,6 @@ from dashboard_view.listview_actions import DashboardListViewActions
 from dashboard_view.listview_filters import DashboardListViewFilters
 
 
-class DashboardMenu():
-    menu = []
-
-    def __init__(self, menu):
-        self.menu = menu
-
-    def render(self, request=None, permission=None):
-        output = u''
-        for item in self.menu:
-            link = item.get('link', '#')
-            try:
-                active = 'active' if link == request.path_info else ''
-            except TypeError:
-                active = 'active' if link._proxy____args[0] == request.resolver_match.view_name else ''
-            icon_class = item.get('icon_class', '')
-            verbose_name = item.get('verbose_name', item['name'])
-            arrow = '<span class="fa arrow"></span>' if 'children' in item else ''
-            output += u'<li><a href="{0}" class="{1}"><i class="fa {2} ' \
-                      u'fa-fw"></i>{3} {4}</a>'.format(link, '', icon_class, verbose_name, arrow)
-            if 'children' in item:
-                item['children'].sort()
-                output += u'<ul class="nav nav-second-level">'  # .format(' open' if active != '' else '')
-                for child_item in item['children']:
-                    link = child_item.get('link', '#')
-                    try:
-                        active = 'active' if link == request.path_info else ''
-                    except TypeError:
-                        active = 'active' if link._proxy____args[0] == request.resolver_match.view_name else ''
-
-                    icon_class = child_item.get('icon_class', '')
-                    verbose_name = child_item.get('verbose_name', child_item['name'])
-                    arrow = '<span class="fa arrow"></span>' if 'children' in child_item else ''
-                    output += u'<li><a href="{0}" class="{1}"><i class="fa {2} ' \
-                              u'fa-fw"></i>{3} {4}</a>'.format(link, '', icon_class, verbose_name, arrow)
-                    if 'children' in child_item:
-                        output += u'<ul class="nav nav-third-level">'  # .format(' open' if active != '' else '')
-                        for third_level in child_item['children']:
-                            link = third_level.get('link', '#')
-                            try:
-                                active = 'active' if link == request.path_info else ''
-                            except TypeError:
-                                active = 'active' if link._proxy____args[0] == request.resolver_match.view_name else ''
-                            icon_class = third_level.get('icon_class', '')
-                            verbose_name = third_level.get('verbose_name', third_level['name'])
-                            output += u'<li><a href="{0}" class="{1}"><i class="fa {2} ' \
-                                      u'fa-fw"></i>{3}</a></li>'.format(link, '', icon_class, verbose_name)
-                        output += u'</ul>'
-                    output += u'</li>'
-                output += u'</ul>'
-            output += u'</li>'
-        return output
-
-    def menu_list(self):
-        mlist = []
-        ''' mlist.append({'link': '/dashboard', 'app_verbose_name': _('Overview')})
-        for app in self.app_list:
-            models = get_models(get_app(app.label))
-            app_obj = {'app': app, 'app_verbose_name': app.verbose_name,
-                       'models': [{'verbose_name': m._meta.verbose_name_plural,
-                        'link': m._meta.model_name } for m in models if m._meta.model_name in ['member', 'church']]}
-            mlist.append(app_obj)
-        '''
-        return mlist
-
 class DashboardView(ContextMixin):
     menu = []
     widget_class = None
@@ -103,85 +38,85 @@ class DashboardView(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super(DashboardView, self).get_context_data(**kwargs)
 
-        context['dashboard_menu'] = self.menu.render(self.request)
-        context['app_list'] = self.menu.menu_list()
+        context.update(self.admin_site.each_context(self.request))
+
         context['media_css'] = Media()
         context['media_js'] = Media()
-
-        if hasattr(self, 'verbose_name'):
-            context['page_name'] = self.verbose_name + mark_safe(' <small>' + _('Report') + '</small>')
 
         if not hasattr(self, 'model'):
             return context
 
-        try:
-            get_template(
-                self.model._meta.app_label + '/' + self.model._meta.model_name + self.template_name_suffix + '.html')
-        except TemplateDoesNotExist:
-            self.template_name = 'generics/dashboard' + self.template_name_suffix + '.html'
-
-        context['list_view'] = self.request.resolver_match.view_name. \
-            replace('_edit', '').replace('_add', '').replace('_detail', '')
-        context['add_view'] = self.request.resolver_match.view_name. \
-                                  replace('_edit', '').replace('_add', '').replace('_detail', '') + '_add'
-        context['detail_view'] = self.request.resolver_match.view_name. \
-                                     replace('_edit', '').replace('_add', '').replace('_detail', '') + '_detail'
-        context['edit_view'] = self.request.resolver_match.view_name. \
-                                   replace('_edit', '').replace('_add', '').replace('_detail', '') + '_edit'
-
-        new_title = (pgettext('female', 'New') if hasattr(self.model._meta,
-                                                          'gender') and self.model._meta.gender == 'F' else \
-                         pgettext('male', 'New')) + u' ' + self.model._meta.verbose_name
-
-        if self.template_name_suffix == '_form' and self.object:
-            context['page_name'] = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
-                               u' <span class="label label-warning">' + _('Editing') + u'</span></small> '
-        elif self.template_name_suffix == '_detail':
-            context['page_name'] = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
-                                   u'</small>'
-
-        elif self.template_name_suffix == '_form':
-            context['page_name'] = new_title
+        if hasattr(self, 'report'):
+            context['page_name'] = self.report.verbose_name + mark_safe(' <small>' + _('Report') + '</small>')
         else:
-            context['page_name'] = self.model._meta.verbose_name_plural.title() + \
-                                   u'<a href="' + reverse(context['add_view']) + \
-                                   u'" class="btn pull-right btn-success">' + \
-                                   new_title + u'</a>'
+            try:
+                get_template(
+                    self.model._meta.app_label + '/' + self.model._meta.model_name + self.template_name_suffix + '.html')
+            except TemplateDoesNotExist:
+                self.template_name = 'generics/dashboard' + self.template_name_suffix + '.html'
 
-        fields = list(self.model._meta.fields)
-        context['fields'] = []
+            context['list_view'] = self.request.resolver_match.view_name. \
+                replace('_edit', '').replace('_add', '').replace('_detail', '')
+            context['add_view'] = self.request.resolver_match.view_name. \
+                                      replace('_edit', '').replace('_add', '').replace('_detail', '') + '_add'
+            context['detail_view'] = self.request.resolver_match.view_name. \
+                                         replace('_edit', '').replace('_add', '').replace('_detail', '') + '_detail'
+            context['edit_view'] = self.request.resolver_match.view_name. \
+                                       replace('_edit', '').replace('_add', '').replace('_detail', '') + '_edit'
 
-        if hasattr(self, 'datatable_options'):
-            if self.datatable_options is not None:
-                self.fields = self.datatable_options['columns']
+            new_title = (pgettext('female', 'New') if hasattr(self.model._meta,
+                                                              'gender') and self.model._meta.gender == 'F' else \
+                             pgettext('male', 'New')) + u' ' + self.model._meta.verbose_name
 
-        if hasattr(self, 'fields') and self.fields is not None:
-            '''for f in fields:
-                if f.name in self.fields:
-                    context['fields'].append(f)'''
+            if self.template_name_suffix == '_form' and self.object:
+                context['page_name'] = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
+                                   u' <span class="label label-warning">' + _('Editing') + u'</span></small> '
+            elif self.template_name_suffix == '_detail':
+                context['page_name'] = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
+                                       u'</small>'
 
-            for f in self.fields:
-                if type(f) is not tuple and isinstance(f, six.string_types):
-                    try:
-                        context['fields'].append(self.model._meta.get_field_by_name(f)[0])
-                    except FieldDoesNotExist:
-                        if hasattr(self.model, f):
-                            context['fields'].append(Field(verbose_name=f.title(), name=f))
-                else:
-                    try:
-                        if type(f[1]) is list:
-                            field = self.model._meta.get_field_by_name(f[1][0])[0]
-                        else:
-                            field = self.model._meta.get_field_by_name(f[1])[0]
-                        field.verbose_name = f[0]
-                        context['fields'].append(field)
-                    except FieldDoesNotExist:
-                        if type(f[1]) is list:
-                            if hasattr(self.model, f[1][0]):
-                                context['fields'].append(Field(verbose_name=f[0].title(), name=f[1][0]))
-                        else:
-                            if hasattr(self.model, f[1]):
-                                context['fields'].append(Field(verbose_name=f[0].title(), name=f[1]))
+            elif self.template_name_suffix == '_form':
+                context['page_name'] = new_title
+            else:
+                context['page_name'] = self.model._meta.verbose_name_plural.title() + \
+                                       u'<a href="' + reverse(context['add_view']) + \
+                                       u'" class="btn pull-right btn-success">' + \
+                                       new_title + u'</a>'
+
+            fields = list(self.model._meta.fields)
+            context['fields'] = []
+
+            if hasattr(self, 'datatable_options'):
+                if self.datatable_options is not None:
+                    self.fields = self.datatable_options['columns']
+
+            if hasattr(self, 'fields') and self.fields is not None:
+                '''for f in fields:
+                    if f.name in self.fields:
+                        context['fields'].append(f)'''
+
+                for f in self.fields:
+                    if type(f) is not tuple and isinstance(f, six.string_types):
+                        try:
+                            context['fields'].append(self.model._meta.get_field_by_name(f)[0])
+                        except FieldDoesNotExist:
+                            if hasattr(self.model, f):
+                                context['fields'].append(Field(verbose_name=f.title(), name=f))
+                    else:
+                        try:
+                            if type(f[1]) is list:
+                                field = self.model._meta.get_field_by_name(f[1][0])[0]
+                            else:
+                                field = self.model._meta.get_field_by_name(f[1])[0]
+                            field.verbose_name = f[0]
+                            context['fields'].append(field)
+                        except FieldDoesNotExist:
+                            if type(f[1]) is list:
+                                if hasattr(self.model, f[1][0]):
+                                    context['fields'].append(Field(verbose_name=f[0].title(), name=f[1][0]))
+                            else:
+                                if hasattr(self.model, f[1]):
+                                    context['fields'].append(Field(verbose_name=f[0].title(), name=f[1]))
 
         if hasattr(self, 'filters') and self.filters:
             filters = DashboardListViewFilters(view=self, filters_list=self.filters)
