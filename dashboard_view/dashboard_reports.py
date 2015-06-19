@@ -7,18 +7,20 @@ class DashboardReportView(DashboardFormView):
     template_name = "generics/dashboard_report.html"
     report = None
     admin_site = None
+    model = None
 
     def __init__(self, report, admin_site, **kwargs):
         super(DashboardReportView, self).__init__(**kwargs)
         self.report = report
         self.admin_site = admin_site
         self.form_class = self.report.filter_form
+        self.model = self.report.model
 
     def get_success_url(self):
         return HttpResponseRedirect(self.get_success_url())
 
     def form_valid(self, form):
-        return self.render_to_response(context=self.get_context_data(form=form, objects=self.get_queryset()))
+        return self.render_to_response(context=self.get_context_data(form=form, objects=self.report.get_queryset()))
 
 class DashboardReport:
     queryset = None
