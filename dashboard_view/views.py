@@ -32,6 +32,7 @@ from dashboard_view.listview_filters import DashboardListViewFilters
 
 
 class DashboardView(ContextMixin):
+    admin_site = None
     menu = []
     widget_class = None
 
@@ -48,6 +49,7 @@ class DashboardView(ContextMixin):
 
         if hasattr(self, 'report'):
             context['page_name'] = self.report.verbose_name + mark_safe(' <small>' + _('Report') + '</small>')
+            context['title'] = self.report.verbose_name + ' ' + _('Report')
         else:
             try:
                 get_template(

@@ -1,13 +1,16 @@
 from django.contrib import admin
 
 # Register your models here.
+from django.contrib.admin.options import ModelAdmin
 from django.contrib.admin.sites import AdminSite
 from django.utils.translation import gettext as _
 from dashboard_view.dashboard_menu import DashboardMenu
+from dashboard_view.views import DashboardListView
 
 
 class DashboardAdminSite(AdminSite):
     index_template = "dashboard_base.html"
+    login_template = "login.html"
     index_title = _('Overview')
 
     menu = None
