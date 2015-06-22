@@ -17,6 +17,7 @@ from django.forms.widgets import Media, PasswordInput
 from django.template.base import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
+from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.text import smart_split
 from django.utils.translation import ugettext as _, pgettext
@@ -88,7 +89,7 @@ class DashboardView(ContextMixin):
             if not context.has_key('page_name'):
                 context['page_name'] = self.get_page_name(context['add_view'])
 
-            context['title'] = context['page_name']
+            context['title'] = strip_tags(context['page_name'])
 
             fields = list(self.model._meta.fields)
             context['fields'] = []
@@ -379,6 +380,7 @@ class DashboardDetailView(DetailView, DashboardView):
 
 class DashboardCreateView(CreateView, DashboardView):
     def form_valid(self, form):
+        response = super(DashboardCreateView, self).form_valid(form)
 
         model_name = self.model._meta.verbose_name
 
@@ -389,7 +391,7 @@ class DashboardCreateView(CreateView, DashboardView):
 
         # LogEntry.objects.log_action(self.request.user.id, )
         messages.success(self.request, message=model_name + object_name + _('created successfully!'))
-        return super(DashboardCreateView, self).form_valid(form)
+        return response
 
 
 class DashboardFormView(FormView, DashboardView):
