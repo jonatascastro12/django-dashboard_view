@@ -36,6 +36,25 @@ class DashboardView(ContextMixin):
     menu = []
     widget_class = None
 
+    def get_page_name(self, add_view):
+        new_title = (pgettext('female', 'New') if hasattr(self.model._meta,
+                                                              'gender') and self.model._meta.gender == 'F' else \
+                             pgettext('male', 'New')) + u' ' + self.model._meta.verbose_name
+
+        if self.template_name_suffix == '_form' and self.object:
+            page_name = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
+                               u' <span class="label label-warning">' + _('Editing') + u'</span></small> '
+        elif self.template_name_suffix == '_detail':
+            page_name = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
+                                   u'</small>'
+
+        elif self.template_name_suffix == '_form':
+            page_name = new_title
+        else:
+            page_name = self.model._meta.verbose_name_plural.title()
+
+        return page_name
+
     def get_context_data(self, **kwargs):
         context = super(DashboardView, self).get_context_data(**kwargs)
 
@@ -66,24 +85,10 @@ class DashboardView(ContextMixin):
             context['edit_view'] = self.request.resolver_match.view_name. \
                                        replace('_edit', '').replace('_add', '').replace('_detail', '') + '_edit'
 
-            new_title = (pgettext('female', 'New') if hasattr(self.model._meta,
-                                                              'gender') and self.model._meta.gender == 'F' else \
-                             pgettext('male', 'New')) + u' ' + self.model._meta.verbose_name
+            if not context.has_key('page_name'):
+                context['page_name'] = self.get_page_name(context['add_view'])
 
-            if self.template_name_suffix == '_form' and self.object:
-                context['page_name'] = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
-                                   u' <span class="label label-warning">' + _('Editing') + u'</span></small> '
-            elif self.template_name_suffix == '_detail':
-                context['page_name'] = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
-                                       u'</small>'
-
-            elif self.template_name_suffix == '_form':
-                context['page_name'] = new_title
-            else:
-                context['page_name'] = self.model._meta.verbose_name_plural.title() + \
-                                       u'<a href="' + reverse(context['add_view']) + \
-                                       u'" class="btn pull-right btn-success">' + \
-                                       new_title + u'</a>'
+            context['title'] = context['page_name']
 
             fields = list(self.model._meta.fields)
             context['fields'] = []
