@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.utils.translation import gettext as _
 from dashboard_view.dashboard_widgets import DashboardWidget
+from dashboard_view.views import DashboardProfileView, DashboardFormView
 
 
 class DashboardAdminSite(AdminSite):
