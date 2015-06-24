@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import logout
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.core.urlresolvers import reverse, reverse_lazy, NoReverseMatch
 from django.db.models.fields import Field, FieldDoesNotExist
 from django.db.models.query_utils import Q
 from django.forms.widgets import Media, PasswordInput
@@ -79,8 +79,15 @@ class DashboardView(ContextMixin):
 
             context['list_view'] = self.request.resolver_match.view_name. \
                 replace('_edit', '').replace('_add', '').replace('_detail', '')
-            context['add_view'] = self.request.resolver_match.view_name. \
+
+            try:
+                add_view = self.request.resolver_match.view_name. \
                                       replace('_edit', '').replace('_add', '').replace('_detail', '') + '_add'
+                test = reverse(add_view)
+                context['add_view'] = add_view
+            except NoReverseMatch:
+                context['add_view'] = None
+                pass
             context['detail_view'] = self.request.resolver_match.view_name. \
                                          replace('_edit', '').replace('_add', '').replace('_detail', '') + '_detail'
             context['edit_view'] = self.request.resolver_match.view_name. \

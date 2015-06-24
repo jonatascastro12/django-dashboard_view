@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify, camel_case_to_spaces
+from django.utils.translation import ugettext_lazy as _
 from dashboard_view.utils import getattrd
 from dashboard_view.views import DashboardFormView
 
@@ -39,7 +40,7 @@ class DashboardReport:
         self.admin_site = admin_site
 
         if not self.verbose_name:
-            self.verbose_name = camel_case_to_spaces(self.__class__.__name__.replace('Report', '')).title()
+            self.verbose_name = _(camel_case_to_spaces(self.__class__.__name__.replace('Report', '')).title())
         self.name = self.get_slug()
 
     def get_queryset(self, form):
@@ -70,7 +71,7 @@ class DashboardReport:
 
         if self.list_display:
             for ld in self.list_display:
-                output += u'<th>%s</th>' % ld[0] if type(ld) == tuple else ld
+                output += u'<th>%s</th>' % ld[0].title() if type(ld) == tuple else ld
             output += u'</thead>' \
                   u'<tbody>'
             for obj in objects:
@@ -85,7 +86,7 @@ class DashboardReport:
             output += u'</tbody>' \
                       u'</table>'
         else:
-            output += u'<th>%s</th>' % self.model._meta.verbose_name
+            output += u'<th>%s</th>' % self.model._meta.verbose_name.title()
             output += u'</thead>' \
                   u'<tbody>'
             for obj in objects:

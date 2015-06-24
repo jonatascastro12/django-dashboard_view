@@ -1,0 +1,56 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-06-24 09:41-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:12
+msgid "Larger size permitted: 500Kb"
+msgstr ""
+
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:35
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:40
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:45
+msgid "Loading"
+msgstr ""
+
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:36
+msgid "Change photo"
+msgstr ""
+
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:40
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:45
+msgid "Successful!"
+msgstr ""
+
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:41
+msgid "Change crop"
+msgstr ""
+
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:46
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:276
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:306
+msgid "Define photo"
+msgstr ""
+
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:140
+msgid "Only .jpg extension is permitted."
+msgstr ""
+
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:142
+#: .\crop_image\templates\jcrop\jcrop_image_widget.html:207
+msgid "Alert"
+msgstr ""

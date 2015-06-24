@@ -1,0 +1,252 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-06-24 09:41-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\dashboard_view\admin.py:12
+msgid "Overview"
+msgstr "Visão Geral"
+
+#: .\dashboard_view\dashboard_menu.py:23
+msgid "Reports"
+msgstr "Relatórios"
+
+#: .\dashboard_view\detailview_actions.py:37
+msgid "Delete"
+msgstr "Apagar"
+
+#: .\dashboard_view\detailview_actions.py:39
+msgid "Edit"
+msgstr "Editar"
+
+#: .\dashboard_view\detailview_actions.py:41
+msgid "Print"
+msgstr "Imprimir"
+
+#: .\dashboard_view\detailview_actions.py:99
+#: .\dashboard_view\listview_actions.py:94
+msgid "Deleted successfully!"
+msgstr "Apagado com sucesso!"
+
+#: .\dashboard_view\errors.py:17
+msgid "Only jpg and png format is permitted."
+msgstr "Apenas os formatos jpg e png são permitidos."
+
+#: .\dashboard_view\errors.py:21
+msgid "The file is not a image or corrupted."
+msgstr ""
+
+#: .\dashboard_view\errors.py:25
+msgid "Image must be at least 512x512 resolution."
+msgstr ""
+
+#: .\dashboard_view\errors.py:29
+msgid "Get request is not permitted."
+msgstr ""
+
+#: .\dashboard_view\listview_actions.py:37
+#: .\dashboard_view\listview_actions.py:57
+#: .\dashboard_view\templates\includes\group-multiple-selection.html:11
+msgid "Remove"
+msgstr "Remover"
+
+#: .\dashboard_view\templates\dashboard_base.html:71
+msgid "Dashboard"
+msgstr ""
+
+#: .\dashboard_view\templates\dashboard_base.html:272
+msgid "User Profile"
+msgstr "Perfil de Usuário"
+
+#: .\dashboard_view\templates\dashboard_base.html:274
+msgid "Preferences"
+msgstr "Preferências"
+
+#: .\dashboard_view\templates\detailview_actions\remove.html:8
+#: .\dashboard_view\templates\listview_actions\remove.html:8
+msgid "Confirm deletion"
+msgstr "Confirmar exclusão"
+
+#: .\dashboard_view\templates\detailview_actions\remove.html:11
+#: .\dashboard_view\templates\listview_actions\remove.html:11
+msgid "Do you really want to delete "
+msgstr "Você deseja mesmo apagar "
+
+#: .\dashboard_view\templates\detailview_actions\remove.html:14
+#: .\dashboard_view\templates\listview_actions\remove.html:14
+msgid "No"
+msgstr "Não"
+
+#: .\dashboard_view\templates\detailview_actions\remove.html:15
+#: .\dashboard_view\templates\listview_actions\remove.html:15
+msgid "Confirm"
+msgstr "Confirmar"
+
+#: .\dashboard_view\templates\detailview_actions\remove_js.html:8
+msgid "Do you really want to delete this record?"
+msgstr "Você deseja mesmo excluir esse registro?"
+
+#: .\dashboard_view\templates\detailview_actions\remove_js.html:22
+#: .\dashboard_view\templates\listview_actions\remove_js.html:31
+msgid "Deleting..."
+msgstr "Apagando..."
+
+#: .\dashboard_view\templates\detailview_actions\remove_js.html:26
+#: .\dashboard_view\templates\listview_actions\remove_js.html:35
+msgid "Some error occurred."
+msgstr "Ocorreu algum erro"
+
+#: .\dashboard_view\templates\filters\date_range.html:9
+msgid "to"
+msgstr "até"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:31
+msgid "New"
+msgstr "Novo"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:57
+msgid "No records found."
+msgstr "Nenhum registro encontrado."
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:65
+msgid "Filters"
+msgstr "Filtros"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:68
+msgid "Clear"
+msgstr "Limpar"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:69
+msgid "Filter"
+msgstr "Filtrar"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:110
+msgid "No data available in table"
+msgstr "Nenhum registro disponível na tabela"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:111
+#: .\dashboard_view\templates\generics\dashboard_list.html:112
+msgid "Showing _START_ to _END_ of _TOTAL_ entries"
+msgstr "Mostrando _START_ a _END_ de _TOTAL_ registros"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:113
+msgid "Showing 0 to 0 of 0 entries"
+msgstr "Mostrando 0 registros"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:114
+#: .\dashboard_view\templates\generics\dashboard_list.html:115
+msgid "filtered from _MAX_ total entries"
+msgstr "filtardo de _MAX_ registros"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:118
+msgid "Show _MENU_ entries"
+msgstr "Mostrar _MENU_ registros"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:119
+msgid "Loading"
+msgstr "Carregando"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:120
+msgid "Processing"
+msgstr "Processando"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:121
+msgid "Search"
+msgstr "Pesquisar"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:122
+msgid "No matching records found"
+msgstr "Nenhum registro encontrado"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:124
+msgid "First"
+msgstr "Primeiro"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:125
+msgid "Last"
+msgstr "Último"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:126
+msgid "Next"
+msgstr "Próximo"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:127
+msgid "Previous"
+msgstr "Anterior"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:130
+msgid "activate to sort column ascending"
+msgstr "ativar ordenação crescente"
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:131
+msgid "activate to sort column descending"
+msgstr "ativar ordenação decrescente"
+
+#: .\dashboard_view\templates\includes\group-multiple-selection.html:6
+#: .\dashboard_view\templates\listview_actions\_group_selection_menu.html:6
+msgid "Multiple selection action"
+msgstr "Ação de selação múltipla"
+
+#: .\dashboard_view\templates\includes\group-multiple-selection.html:13
+msgid "Print ID Cards"
+msgstr "Imprimir cartão"
+
+#: .\dashboard_view\templates\listview_actions\remove_js.html:16
+msgid "Do you really want to delete:"
+msgstr "Você deseja mesmo deletar:"
+
+#: .\dashboard_view\views.py:41
+msgctxt "female"
+msgid "New"
+msgstr "Nova"
+
+#: .\dashboard_view\views.py:43
+msgctxt "male"
+msgid "New"
+msgstr "Novo"
+
+#: .\dashboard_view\views.py:47
+msgid "Editing"
+msgstr "Editando"
+
+#: .\dashboard_view\views.py:71 .\dashboard_view\views.py:72
+msgid "Report"
+msgstr "Relatório"
+
+#: .\dashboard_view\views.py:393
+msgid "created successfully!"
+msgstr "criado com sucesso!"
+
+#: .\dashboard_view\views.py:406
+msgid " updated successfully!"
+msgstr " atualizado com sucesso!"
+
+#: .\dashboard_view\views.py:431
+msgid "Username/Email"
+msgstr "Usuário/Email"
+
+#: .\dashboard_view\views.py:432
+msgid "Password"
+msgstr "Senha"
+
+#: .\dashboard_view\views.py:461
+msgid "Invalid username or password"
+msgstr "Usuário e/ou senha inválidos"
+
+#: .\dashboard_view\views.py:464
+msgid "User is not active"
+msgstr "Usuário não ativo"

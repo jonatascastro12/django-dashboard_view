@@ -5,7 +5,31 @@
         {{ field }}
     {% else %}
         <div class="form-group form-group-sm {% if field.errors %}has-error{% endif %} {% if form.errors and not field.errors %}has-success{% endif %} {% if form.errors %}has-feedback{% endif %}">
-            {% if field.field.widget|klass == 'CheckboxInput' or field.field.widget|klass == 'radioselect'%}
+            {% if field.field.widget|klass == 'checkboxinput' %}
+                 {% if field.label %}
+                    <label class="col-sm-3 col-lg-2 control-label" for="id_{{ field.name }}">
+                        {{ field.label }}
+
+                        {% if field.field.required %}
+                            <span class="required">*</span>
+                        {% endif %}
+
+                        {% if field.help_text %}
+                            <span class="help-block" title="{{ field.label }}">
+                                {{ field.help_text }}
+                            </span><!-- /.help-block -->
+                        {% endif %}
+                    </label>
+                    <div class="col-sm-8 col-lg-4">
+                        <div class="checkbox">
+                            <label>
+                                    {{ field }}
+                            </label>
+                        </div>
+                    </div>
+                {% endif %}
+
+            {% elif field.field.widget|klass == 'CheckboxInput' or field.field.widget|klass == 'radioselect'%}
                 {% if field.label %}
                     <label class="col-sm-3 col-lg-2 control-label" for="id_{{ field.name }}">
                         {{ field.label }}

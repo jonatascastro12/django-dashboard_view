@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse_lazy
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext_lazy as _
 from dashboard_view.dashboard_reports import DashboardReport
 
 
