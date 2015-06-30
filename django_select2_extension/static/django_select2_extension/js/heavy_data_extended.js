@@ -90,7 +90,7 @@ if (!window['django_select2']) {
 			var val = $e.select2('val'), res = $e.data('results'), txt = $e.txt(), isMultiple = !!$e.attr('multiple'),
 				f, id = $e.attr('id');
 
-			if (typeof txt === 'object'){
+			if (typeof txt === 'object' || typeof txt === 'string'){
 				txt = JSON.parse(txt);
 			}
 
@@ -192,8 +192,12 @@ if (!window['django_select2']) {
 			}
 		},
 		convertArrToStr: function (arr) {
-			if (typeof(arr[0]) === 'object') {
+			if (typeof (arr) === 'object'){
 				return JSON.stringify(arr)
+			}else {
+				if (typeof(arr[0]) === 'object') {
+					return JSON.stringify(arr)
+				}
 			}
 			return arr.join(django_select2.MULTISEPARATOR);
 		},
@@ -237,7 +241,7 @@ if (!window['django_select2']) {
 						if (this.attr('multiple')) {
 							val = django_select2.convertArrToStr(val);
 						} else {
-							val = val[0]
+							val = django_select2.convertArrToStr(val[0]);
 						}
 					}
 					this.attr('txt', val);

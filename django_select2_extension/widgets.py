@@ -7,34 +7,14 @@ from django_select2.media import get_select2_css_libs
 from django_select2.widgets import AutoHeavySelect2Widget, AutoHeavySelect2MultipleWidget, logger
 from django_select2_extension.media import get_select2_extended_heavy_js_libs
 
-class AutoPhotoHeavySelect2Widget(AutoHeavySelect2Widget):
-    def __init__(self, *args, **kwargs):
-        super(AutoPhotoHeavySelect2Widget, self).__init__(userGetValTextFuncName='test', *args, **kwargs)
 
+class Select2WithPhotoMixin(object):
     def init_options(self):
-        super(AutoPhotoHeavySelect2Widget, self).init_options()
+        super(Select2WithPhotoMixin, self).init_options()
+
         self.options['escapeMarkup'] = "*START*function (markup) { return markup; }*END*"
         self.options['formatSelection'] = "*START*" \
-                                            "function(obj){" \
-                                            "var $obj = " \
-                                            "'<span><img class=\"select-img\" src=\"'+obj.photo+'\"> '+ obj.text +'</span>';" \
-                                            "return $obj;" \
-                                            "}" \
-                                            "*END*"
-        self.options['formatResult'] = "*START*" \
-                                            "function(obj){" \
-                                            "var $obj = " \
-                                            "'<span><img class=\"select-img\" src=\"'+obj.photo+'\"> '+ obj.text +'</span>';" \
-                                            "return $obj;" \
-                                            "}" \
-                                            "*END*"
-
-class AutoPhotoHeavySelect2MultipleWidget(AutoHeavySelect2MultipleWidget):
-    def init_options(self):
-        super(AutoPhotoHeavySelect2MultipleWidget, self).init_options()
-        self.options['escapeMarkup'] = "*START*function (markup) { return markup; }*END*"
-        self.options['formatSelection'] = "*START*" \
-                                            "function(a,b,c){console.log(a);debugger;" \
+                                            "function(a,b,c){console.log(a);" \
                                           " if (typeof a.text === 'object'){" \
                                           "var $obj = " \
                                            "'<span><img class=\"select-img\" src=\"'+a.text['photo']+'\"> '+ a.text['txt'] +'</span>';" \
@@ -45,7 +25,7 @@ class AutoPhotoHeavySelect2MultipleWidget(AutoHeavySelect2MultipleWidget):
                                             "}" \
                                             "*END*"
         self.options['formatResult'] = "*START*" \
-                                            "function(a,b,c){console.log(a);debugger;" \
+                                            "function(a,b,c){console.log(a);" \
                                           " if (typeof a.text === 'object'){" \
                                           "var $obj = " \
                                            "'<span><img class=\"select-img\" src=\"'+a.text['photo']+'\"> '+ a.text['txt'] +'</span>';" \
@@ -80,9 +60,15 @@ class AutoPhotoHeavySelect2MultipleWidget(AutoHeavySelect2MultipleWidget):
         if isinstance(self_choices, fields.FilterableAdvancedModelChoiceIterator):
             self_choices.set_extra_filter(**{'%s__in' % self.field.get_pk_field_name(): selected_choices})
 
-        for val, txt, instance in chain(self_choices, all_choices):
-            val = force_text(val)
-            choices_dict[val] = {'txt': txt, 'photo': instance.get_small_thumbnail()}
+        values = chain(self_choices, all_choices)
+
+        for v in values:
+            if len(v)==2:
+                val = force_text(v[0])
+                choices_dict[val] = {'txt': v[1], 'photo': None}
+            else:
+                val = force_text(v[0])
+                choices_dict[val] = {'txt': v[1], 'photo': v[2].get_small_thumbnail()}
 
         for val in selected_choices:
             try:
@@ -121,3 +107,11 @@ class AutoPhotoHeavySelect2MultipleWidget(AutoHeavySelect2MultipleWidget):
         css = {
             'screen': get_select2_css_libs()
         }
+
+class AutoPhotoHeavySelect2Widget(Select2WithPhotoMixin, AutoHeavySelect2Widget):
+    pass
+
+
+
+class AutoPhotoHeavySelect2MultipleWidget(Select2WithPhotoMixin, AutoHeavySelect2MultipleWidget):
+    pass

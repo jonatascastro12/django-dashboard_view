@@ -1,5 +1,7 @@
+from django.db.models.query_utils import Q
 from django.forms.models import ModelChoiceIterator
-from django_select2.fields import ChoiceMixin
+from django_select2.fields import ChoiceMixin, AutoModelSelect2MultipleField, AutoModelSelect2Field
+from django_select2_extension.widgets import AutoPhotoHeavySelect2MultipleWidget, AutoPhotoHeavySelect2Widget
 
 
 class FilterableAdvancedModelChoiceIterator(ModelChoiceIterator):
@@ -53,3 +55,37 @@ class QuerysetAdvancedChoiceMixin(ChoiceMixin):
         # Need to force a new ModelChoiceIterator to be created, bug #11183
         result.queryset = result.queryset
         return result
+
+    def prepare_qs_params(self, request, search_term, search_fields):
+        q = None
+        for field in search_fields:
+            kwargs = {}
+            search_term = search_term.strip()
+            if " " in search_term:
+                splitted_terms = search_term.split(" ")
+                for term in splitted_terms:
+                    kwargs[field] = term
+                    if q is None:
+                        q = Q(**kwargs)
+                    else:
+                        q = q | Q(**kwargs)
+            else:
+                kwargs[field] = search_term
+                if q is None:
+                    q = Q(**kwargs)
+                else:
+                    q = q | Q(**kwargs)
+        return {'or': [q], 'and': {}}
+
+
+class AutoPhotoModelSelect2Field(QuerysetAdvancedChoiceMixin, AutoModelSelect2Field):
+    widget = AutoPhotoHeavySelect2Widget
+
+    def extra_data_from_instance(self, obj):
+        return {'photo': obj.get_small_thumbnail()}
+
+class AutoPhotoModelSelect2MultipleField(QuerysetAdvancedChoiceMixin, AutoModelSelect2MultipleField):
+    widget = AutoPhotoHeavySelect2MultipleWidget
+
+    def extra_data_from_instance(self, obj):
+        return {'photo': obj.get_small_thumbnail()}
