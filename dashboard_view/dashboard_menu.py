@@ -27,7 +27,14 @@ class DashboardMenu():
 
     def render(self, request=None, permission=None):
         output = u''
+
+        user = request.user
+
         for item in self.menu:
+
+            if item.get('perm', False) and not user.has_perm(item.get('perm', '')):
+                continue
+
             link = item.get('link', '#')
             try:
                 active = 'active' if link == request.path_info else ''
@@ -42,6 +49,10 @@ class DashboardMenu():
                 item['children'].sort()
                 output += u'<ul class="nav nav-second-level">'  # .format(' open' if active != '' else '')
                 for child_item in item['children']:
+
+                    if child_item.get('perm', False) and not user.has_perm(child_item.get('perm', '')):
+                        continue
+
                     link = child_item.get('link', '#')
                     try:
                         active = 'active' if link == request.path_info else ''
@@ -56,6 +67,9 @@ class DashboardMenu():
                     if 'children' in child_item:
                         output += u'<ul class="nav nav-third-level">'  # .format(' open' if active != '' else '')
                         for third_level in child_item['children']:
+                            if third_level.get('perm', False) and not user.has_perm(third_level.get('perm', '')):
+                                continue
+
                             link = third_level.get('link', '#')
                             try:
                                 active = 'active' if link == request.path_info else ''

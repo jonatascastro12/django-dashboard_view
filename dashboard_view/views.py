@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from datatableview.utils import split_real_fields, filter_real_fields, get_first_orm_bit, get_field_definition, \
     resolve_orm_path, FIELD_TYPES, ObjectListResult
 from datatableview.views import DatatableMixin, log
@@ -14,6 +15,7 @@ from django.core.urlresolvers import reverse, reverse_lazy, NoReverseMatch
 from django.db.models.fields import Field, FieldDoesNotExist
 from django.db.models.query_utils import Q
 from django.forms.widgets import Media, PasswordInput
+from django.http.response import HttpResponseRedirect
 from django.template.base import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
@@ -71,27 +73,33 @@ class DashboardView(ContextMixin):
             context['page_name'] = self.report.verbose_name + mark_safe(' <small>' + _('Report') + '</small>')
             context['title'] = self.report.verbose_name + ' ' + _('Report')
         else:
+
+            view_name = re.sub(r'_edit|_add|_detail', '', self.request.resolver_match.view_name)
+            s_view_names = view_name.split(':')
+            app_name = s_view_names[0]
+            model_name = s_view_names[1]
+
             try:
                 get_template(
                     self.model._meta.app_label + '/' + self.model._meta.model_name + self.template_name_suffix + '.html')
             except TemplateDoesNotExist:
                 self.template_name = 'generics/dashboard' + self.template_name_suffix + '.html'
 
-            context['list_view'] = self.request.resolver_match.view_name. \
-                replace('_edit', '').replace('_add', '').replace('_detail', '')
+            context['list_view'] = view_name
 
-            try:
-                add_view = self.request.resolver_match.view_name. \
-                                      replace('_edit', '').replace('_add', '').replace('_detail', '') + '_add'
-                test = reverse(add_view)
-                context['add_view'] = add_view
-            except NoReverseMatch:
+            if (self.request.user.has_perm(app_name + '.add_' + model_name)):
+                try:
+                    add_view = view_name + '_add'
+                    test = reverse(add_view)
+                    context['add_view'] = add_view
+                except NoReverseMatch:
+                    context['add_view'] = None
+                    pass
+            else:
                 context['add_view'] = None
-                pass
-            context['detail_view'] = self.request.resolver_match.view_name. \
-                                         replace('_edit', '').replace('_add', '').replace('_detail', '') + '_detail'
-            context['edit_view'] = self.request.resolver_match.view_name. \
-                                       replace('_edit', '').replace('_add', '').replace('_detail', '') + '_edit'
+
+            context['detail_view'] = view_name + '_detail'
+            context['edit_view'] = view_name + '_edit'
 
             if not context.has_key('page_name'):
                 context['page_name'] = self.get_page_name(context['add_view'])
@@ -153,6 +161,26 @@ class DashboardView(ContextMixin):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
+
+        names = request.resolver_match.view_name.split(':')
+
+        app_name = names[0]
+        view_name = names[1]
+        perm_pattern = '%s.view_%s'
+
+        if '_add' in view_name:
+            view_name = view_name.replace('_add', '')
+            perm_pattern = '%s.add_%s'
+        elif '_edit' in view_name:
+            view_name = view_name.replace('_edit', '')
+            perm_pattern = '%s.change_%s'
+        elif '_detail' in view_name:
+            view_name = view_name.replace('_detail', '')
+
+        if not request.user.has_perm(perm_pattern % (app_name, view_name)):
+            messages.error(request, message=_('You don\'t have permission to the page you have tried to access.'), extra_tags='danger')
+            return HttpResponseRedirect(redirect_to=reverse('dashboard:index'))
+
         return super(DashboardView, self).dispatch(request, *args, **kwargs)
 
 
@@ -392,12 +420,12 @@ class DashboardCreateView(CreateView, DashboardView):
         model_name = self.model._meta.verbose_name
 
         if self.object:
-            object_name = ' ' + self.object.__unicode__() + ' '
+            object_name = ' <strong>' + self.object.__unicode__() + '</strong> '
         else:
-            object_name = ' ' + form.instance.__unicode__() + ' '
+            object_name = ' <strong>' + form.instance.__unicode__() + '</strong> '
 
         # LogEntry.objects.log_action(self.request.user.id, )
-        messages.success(self.request, message=model_name + object_name + _('created successfully!'))
+        messages.success(self.request, message=mark_safe(model_name.title() + object_name + _('created successfully!')))
         return response
 
 
@@ -408,9 +436,9 @@ class DashboardFormView(FormView, DashboardView):
 class DashboardUpdateView(UpdateView, DashboardView):
     def form_valid(self, form):
         model_name = self.model._meta.verbose_name
-        object_name = self.object.__unicode__()
+        object_name = ' <strong>' + self.object.__unicode__() +' </strong>'
 
-        messages.success(self.request, message=model_name + ' ' + object_name + _(' updated successfully!'))
+        messages.success(self.request, message=mark_safe(model_name.title() + ' ' + object_name + _(' updated successfully!')))
         return super(DashboardUpdateView, self).form_valid(form)
 
 class DashboardReportView(DashboardFormView):

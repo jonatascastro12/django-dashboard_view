@@ -1,5 +1,7 @@
-if (!window['django_select2']) {
+if (!window['django_select2'] || !window['django_select2_extended']) {
 	// This JS file can be included multiple times. So, as not to overwrite previous states, we run this only once.
+
+	window.django_select2_extended = true;
 
 	window.django_select2 = {
 		MULTISEPARATOR: String.fromCharCode(31), // We use this unprintable char as separator,
@@ -92,6 +94,9 @@ if (!window['django_select2']) {
 
 			if (typeof txt === 'object' || typeof txt === 'string'){
 				txt = JSON.parse(txt);
+
+				if (typeof val === 'string' || typeof val === 'object')
+					val = JSON.parse(val);
 			}
 
 			if (val || val === 0) { // Means value is set. A numerical 0 is also a valid value.
@@ -192,14 +197,7 @@ if (!window['django_select2']) {
 			}
 		},
 		convertArrToStr: function (arr) {
-			if (typeof (arr) === 'object'){
-				return JSON.stringify(arr)
-			}else {
-				if (typeof(arr[0]) === 'object') {
-					return JSON.stringify(arr)
-				}
-			}
-			return arr.join(django_select2.MULTISEPARATOR);
+			return JSON.stringify(arr)
 		},
 		runInContextHelper: function (f, id) {
 			return function () {
