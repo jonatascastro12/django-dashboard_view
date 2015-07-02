@@ -53,6 +53,7 @@ def image_upload(request):
                 default_storage.delete(path)
                 return HttpResponse(status=406, content=errors.ImageNotJpgOrPngError().response_error())
             if (im.size <= (512,512)):
+                im.close()
                 default_storage.delete(path)
                 return HttpResponse(status=406, content=errors.ImageLessThan512().response_error())
         except IOError:

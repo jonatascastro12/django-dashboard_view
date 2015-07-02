@@ -168,7 +168,13 @@ class DashboardView(ContextMixin):
         view_name = names[1]
         perm_pattern = '%s.view_%s'
 
-        if '_add' in view_name:
+        if 'report' in view_name:
+            if (self.report.perm is not None and not request.user.has_perm(self.report.perm)):
+                messages.error(request, message=_('You don\'t have permission to the page you have tried to access.'), extra_tags='danger')
+                return HttpResponseRedirect(redirect_to=reverse('dashboard:index'))
+            else:
+                return super(DashboardView, self).dispatch(request, *args, **kwargs)
+        elif '_add' in view_name:
             view_name = view_name.replace('_add', '')
             perm_pattern = '%s.add_%s'
         elif '_edit' in view_name:

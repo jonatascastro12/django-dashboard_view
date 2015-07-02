@@ -23,7 +23,7 @@ class DashboardReportView(DashboardFormView):
         return HttpResponseRedirect(self.get_success_url())
 
     def form_valid(self, form):
-        objects = self.report.get_queryset(form)
+        objects = self.report.get_queryset(form, self.request.user)
         return self.render_to_response(context=self.get_context_data(form=form, objects=objects,
                                                                      report_table=self.report.render_table(objects)))
 
@@ -43,7 +43,7 @@ class DashboardReport:
             self.verbose_name = _(camel_case_to_spaces(self.__class__.__name__.replace('Report', '')).title())
         self.name = self.get_slug()
 
-    def get_queryset(self, form):
+    def get_queryset(self, form, request=None):
         return self.queryset
 
     def get_context(self, form, objects, context):

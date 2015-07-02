@@ -2,12 +2,13 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib.admin.sites import AdminSite
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from dashboard_view.dashboard_widgets import DashboardWidget
 
 
 class DashboardAdminSite(AdminSite):
-    index_template = "dashboard_base.html"
+    index_template = "dashboard.html"
     login_template = "login.html"
     index_title = _('Overview')
 
@@ -20,7 +21,7 @@ class DashboardAdminSite(AdminSite):
         if self.menu:
             context['dashboard_menu'] = self.menu.render(request)
         if self.widgets:
-            rendered_widgets = DashboardWidget.render_widgets(self.widgets)
+            rendered_widgets = DashboardWidget.render_widgets(self.widgets, request)
             context['dashboard_widgets_html'] = rendered_widgets[0]
             context['dashboard_widgets_js'] = rendered_widgets[1]
         return context
@@ -45,6 +46,8 @@ class DashboardAdminSite(AdminSite):
                 for w in self.widgets:
                     if w.name == widget_name:
                         widget = w
+                if (widget.perm is not None and not request.user.has_perm(widget.perm)):
+                    raise PermissionDenied
                 if callable(getattr(widget, 'run_action', None)):
                     return getattr(widget, 'run_action')(request)
             except AttributeError:
