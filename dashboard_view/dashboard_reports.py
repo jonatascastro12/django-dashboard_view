@@ -43,7 +43,7 @@ class DashboardReport:
             self.verbose_name = _(camel_case_to_spaces(self.__class__.__name__.replace('Report', '')).title())
         self.name = self.get_slug()
 
-    def get_queryset(self, form, request=None):
+    def get_queryset(self, form):
         return self.queryset
 
     def get_context(self, form, objects, context):
