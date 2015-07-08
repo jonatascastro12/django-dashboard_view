@@ -11,12 +11,11 @@
     });
 
     $('#remove-confirm').click(function(){
-        var ids = [];
-        for (var i = 0; i < erase_objs.length; i++) ids.push(erase_objs[i].id);
+
         $.ajax({
             url: '{% url list_view %}',
             type: 'post',
-            data: JSON.stringify({'action': 'remove', data: {'ids': ids} }),
+            data: JSON.stringify({'action': 'remove', data: {'ids': erase_objs} }),
             success: function(data){
                 $('#remove-prompt').modal('hide');
                 Dashboard.show_message("{% trans 'Deleting...' %}", 'warning');

@@ -42,7 +42,7 @@ class DashboardView(ContextMixin):
     def get_page_name(self, add_view):
         new_title = (pgettext('female', 'New') if hasattr(self.model._meta,
                                                               'gender') and self.model._meta.gender == 'F' else \
-                             pgettext('male', 'New')) + u' ' + self.model._meta.verbose_name
+                             pgettext('male', 'New')) + u' %s' % self.model._meta.verbose_name
 
         if self.template_name_suffix == '_form' and self.object:
             page_name = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
@@ -74,7 +74,7 @@ class DashboardView(ContextMixin):
             context['title'] = self.report.verbose_name + ' ' + _('Report')
         else:
 
-            view_name = re.sub(r'_edit|_add|_detail', '', self.request.resolver_match.view_name)
+            view_name = re.sub(r'_edit|_add|_detail|_password', '', self.request.resolver_match.view_name)
             s_view_names = view_name.split(':')
             app_name = s_view_names[0]
             model_name = s_view_names[1]

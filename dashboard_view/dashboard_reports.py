@@ -23,11 +23,11 @@ class DashboardReportView(DashboardFormView):
         return HttpResponseRedirect(self.get_success_url())
 
     def form_valid(self, form):
-        objects = self.report.get_queryset(form, self.request.user)
+        objects = self.report.get_queryset(form)
         return self.render_to_response(context=self.get_context_data(form=form, objects=objects,
-                                                                     report_table=self.report.render_table(objects)))
+                                                                     report_table=self.report.render_table(objects, form)))
 
-class DashboardReport:
+class DashboardReport(object):
     queryset = None
     model = None
     form_class = None
@@ -35,6 +35,7 @@ class DashboardReport:
     name = None
     icon = None
     list_display = None
+    form = None
 
     def __init__(self, admin_site):
         self.admin_site = admin_site
@@ -59,24 +60,33 @@ class DashboardReport:
             return slugify(self.__class__.__name__).replace('-', '_')
 
     def get_absolute_url(self):
-        return reverse_lazy('report_'+self.name)
+        return reverse_lazy('dashboard:report_'+self.name)
 
     def get_view(self):
         view = DashboardReportView.as_view(report=self, admin_site=self.admin_site)
         return view
 
-    def render_table(self, objects):
-        output = u'<table class="table table-striped">' \
+    def get_list_display(self, form):
+        return self.list_display
+
+    def render_table(self, objects, form=None):
+        report_title_text = u'<h2>%s - <small>%s</small></h2>' % (self.get_title(), self.get_subtitle())
+
+        output = report_title_text
+
+        output += u'<table class="table table-striped">' \
                  u'<thead>'
 
-        if self.list_display:
-            for ld in self.list_display:
+        list_display = self.get_list_display(form)
+
+        if list_display:
+            for ld in list_display:
                 output += u'<th>%s</th>' % ld[0].title() if type(ld) == tuple else ld
             output += u'</thead>' \
                   u'<tbody>'
             for obj in objects:
                 output += u'<tr>'
-                for ld in self.list_display:
+                for ld in list_display:
                     attr = ld[1] if type(ld) == tuple else ld
                     value = getattrd(obj, attr, u' - ')
                     if callable(value):
