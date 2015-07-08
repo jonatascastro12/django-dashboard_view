@@ -70,7 +70,11 @@ class DashboardReport(object):
         return self.list_display
 
     def render_table(self, objects, form=None):
-        report_title_text = u'<h2>%s - <small>%s</small></h2>' % (self.get_title(), self.get_subtitle())
+        subtitle = self.get_subtitle()
+        if type(subtitle) == list:
+            report_title_text = u'<h2>%s <small>%s</small></h2>' % (self.get_title(), u' | '.join(subtitle))
+        else:
+            report_title_text = u'<h2>%s <small>%s</small></h2>' % (self.get_title(), self.get_subtitle())
 
         output = report_title_text
 
@@ -91,7 +95,7 @@ class DashboardReport(object):
                     value = getattrd(obj, attr, u' - ')
                     if callable(value):
                         value = value()
-                    output += u'<td>%s</td>' % value
+                    output += u'<td>%s</td>' % (value or ' - ')
                 output += u'</tr>'
             output += u'</tbody>' \
                       u'</table>'
