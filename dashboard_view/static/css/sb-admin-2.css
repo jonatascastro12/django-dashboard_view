@@ -388,3 +388,7 @@ table.dataTable thead .sorting:after {
 .select2-search-choice{
     width: 99%;
 }
+
+@media print {
+    .tab-content > .tab-pane {display: block !important; opacity: 1 !important; visibility: visible !important}
+}
