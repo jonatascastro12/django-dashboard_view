@@ -452,7 +452,7 @@ class DashboardReportView(DashboardFormView):
 
 
 class DashboardOverviewView(TemplateView, DashboardView):
-    template_name = "dashboard_base.html"
+    template_name = "dashboard.html"
 
     def get_context_data(self, **kwargs):
         context = super(DashboardOverviewView, self).get_context_data(**kwargs)
@@ -465,7 +465,7 @@ class DashboardOverviewView(TemplateView, DashboardView):
 
 
 class DashboardProfileView(TemplateView, DashboardView):
-    template_name = "dashboard_base.html"
+    template_name = "dashboard.html"
 
 
 class LoginForm(forms.Form):

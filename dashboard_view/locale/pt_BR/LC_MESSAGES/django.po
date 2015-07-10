@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-24 09:41-0300\n"
+"POT-Creation-Date: 2015-07-10 14:29-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\dashboard_view\admin.py:12
+#: .\dashboard_view\admin.py:13
 msgid "Overview"
 msgstr "Visão Geral"
 
@@ -48,15 +48,15 @@ msgstr "Apenas os formatos jpg e png são permitidos."
 
 #: .\dashboard_view\errors.py:21
 msgid "The file is not a image or corrupted."
-msgstr ""
+msgstr "O arquivo não é uma imagem ou está corrompido"
 
 #: .\dashboard_view\errors.py:25
 msgid "Image must be at least 512x512 resolution."
-msgstr ""
+msgstr "A imagem deve ter o tamanho de pelo menos 512x512"
 
 #: .\dashboard_view\errors.py:29
 msgid "Get request is not permitted."
-msgstr ""
+msgstr "GET request não é permitido."
 
 #: .\dashboard_view\listview_actions.py:37
 #: .\dashboard_view\listview_actions.py:57
@@ -66,13 +66,13 @@ msgstr "Remover"
 
 #: .\dashboard_view\templates\dashboard_base.html:71
 msgid "Dashboard"
-msgstr ""
+msgstr "Dashboard"
 
-#: .\dashboard_view\templates\dashboard_base.html:272
+#: .\dashboard_view\templates\dashboard_base.html:274
 msgid "User Profile"
 msgstr "Perfil de Usuário"
 
-#: .\dashboard_view\templates\dashboard_base.html:274
+#: .\dashboard_view\templates\dashboard_base.html:276
 msgid "Preferences"
 msgstr "Preferências"
 
@@ -100,12 +100,12 @@ msgstr "Confirmar"
 msgid "Do you really want to delete this record?"
 msgstr "Você deseja mesmo excluir esse registro?"
 
-#: .\dashboard_view\templates\detailview_actions\remove_js.html:22
+#: .\dashboard_view\templates\detailview_actions\remove_js.html:21
 #: .\dashboard_view\templates\listview_actions\remove_js.html:31
 msgid "Deleting..."
 msgstr "Apagando..."
 
-#: .\dashboard_view\templates\detailview_actions\remove_js.html:26
+#: .\dashboard_view\templates\detailview_actions\remove_js.html:25
 #: .\dashboard_view\templates\listview_actions\remove_js.html:35
 msgid "Some error occurred."
 msgstr "Ocorreu algum erro"
@@ -114,85 +114,89 @@ msgstr "Ocorreu algum erro"
 msgid "to"
 msgstr "até"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:31
+#: .\dashboard_view\templates\generics\dashboard_list.html:33
 msgid "New"
 msgstr "Novo"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:57
+#: .\dashboard_view\templates\generics\dashboard_list.html:61
 msgid "No records found."
 msgstr "Nenhum registro encontrado."
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:65
+#: .\dashboard_view\templates\generics\dashboard_list.html:63
+msgid "Add a record"
+msgstr ""
+
+#: .\dashboard_view\templates\generics\dashboard_list.html:72
 msgid "Filters"
 msgstr "Filtros"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:68
+#: .\dashboard_view\templates\generics\dashboard_list.html:75
 msgid "Clear"
 msgstr "Limpar"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:69
+#: .\dashboard_view\templates\generics\dashboard_list.html:76
 msgid "Filter"
 msgstr "Filtrar"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:110
+#: .\dashboard_view\templates\generics\dashboard_list.html:117
 msgid "No data available in table"
 msgstr "Nenhum registro disponível na tabela"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:111
-#: .\dashboard_view\templates\generics\dashboard_list.html:112
+#: .\dashboard_view\templates\generics\dashboard_list.html:118
+#: .\dashboard_view\templates\generics\dashboard_list.html:119
 msgid "Showing _START_ to _END_ of _TOTAL_ entries"
 msgstr "Mostrando _START_ a _END_ de _TOTAL_ registros"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:113
+#: .\dashboard_view\templates\generics\dashboard_list.html:120
 msgid "Showing 0 to 0 of 0 entries"
 msgstr "Mostrando 0 registros"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:114
-#: .\dashboard_view\templates\generics\dashboard_list.html:115
+#: .\dashboard_view\templates\generics\dashboard_list.html:121
+#: .\dashboard_view\templates\generics\dashboard_list.html:122
 msgid "filtered from _MAX_ total entries"
 msgstr "filtardo de _MAX_ registros"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:118
+#: .\dashboard_view\templates\generics\dashboard_list.html:125
 msgid "Show _MENU_ entries"
 msgstr "Mostrar _MENU_ registros"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:119
+#: .\dashboard_view\templates\generics\dashboard_list.html:126
 msgid "Loading"
 msgstr "Carregando"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:120
+#: .\dashboard_view\templates\generics\dashboard_list.html:127
 msgid "Processing"
 msgstr "Processando"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:121
+#: .\dashboard_view\templates\generics\dashboard_list.html:128
 msgid "Search"
 msgstr "Pesquisar"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:122
+#: .\dashboard_view\templates\generics\dashboard_list.html:129
 msgid "No matching records found"
 msgstr "Nenhum registro encontrado"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:124
+#: .\dashboard_view\templates\generics\dashboard_list.html:131
 msgid "First"
 msgstr "Primeiro"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:125
+#: .\dashboard_view\templates\generics\dashboard_list.html:132
 msgid "Last"
 msgstr "Último"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:126
+#: .\dashboard_view\templates\generics\dashboard_list.html:133
 msgid "Next"
 msgstr "Próximo"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:127
+#: .\dashboard_view\templates\generics\dashboard_list.html:134
 msgid "Previous"
 msgstr "Anterior"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:130
+#: .\dashboard_view\templates\generics\dashboard_list.html:137
 msgid "activate to sort column ascending"
 msgstr "ativar ordenação crescente"
 
-#: .\dashboard_view\templates\generics\dashboard_list.html:131
+#: .\dashboard_view\templates\generics\dashboard_list.html:138
 msgid "activate to sort column descending"
 msgstr "ativar ordenação decrescente"
 
@@ -209,44 +213,48 @@ msgstr "Imprimir cartão"
 msgid "Do you really want to delete:"
 msgstr "Você deseja mesmo deletar:"
 
-#: .\dashboard_view\views.py:41
+#: .\dashboard_view\views.py:43
 msgctxt "female"
 msgid "New"
 msgstr "Nova"
 
-#: .\dashboard_view\views.py:43
+#: .\dashboard_view\views.py:45
 msgctxt "male"
 msgid "New"
 msgstr "Novo"
 
-#: .\dashboard_view\views.py:47
+#: .\dashboard_view\views.py:49
 msgid "Editing"
 msgstr "Editando"
 
-#: .\dashboard_view\views.py:71 .\dashboard_view\views.py:72
+#: .\dashboard_view\views.py:73 .\dashboard_view\views.py:74
 msgid "Report"
 msgstr "Relatório"
 
-#: .\dashboard_view\views.py:393
+#: .\dashboard_view\views.py:173 .\dashboard_view\views.py:187
+msgid "You don't have permission to the page you have tried to access."
+msgstr "Você não term permissão para acessar esta página."
+
+#: .\dashboard_view\views.py:434
 msgid "created successfully!"
 msgstr "criado com sucesso!"
 
-#: .\dashboard_view\views.py:406
+#: .\dashboard_view\views.py:447
 msgid " updated successfully!"
 msgstr " atualizado com sucesso!"
 
-#: .\dashboard_view\views.py:431
+#: .\dashboard_view\views.py:472
 msgid "Username/Email"
 msgstr "Usuário/Email"
 
-#: .\dashboard_view\views.py:432
+#: .\dashboard_view\views.py:473
 msgid "Password"
 msgstr "Senha"
 
-#: .\dashboard_view\views.py:461
+#: .\dashboard_view\views.py:502
 msgid "Invalid username or password"
 msgstr "Usuário e/ou senha inválidos"
 
-#: .\dashboard_view\views.py:464
+#: .\dashboard_view\views.py:505
 msgid "User is not active"
 msgstr "Usuário não ativo"

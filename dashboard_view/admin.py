@@ -8,7 +8,7 @@ from dashboard_view.dashboard_widgets import DashboardWidget
 
 
 class DashboardAdminSite(AdminSite):
-    index_template = "dashboard.html"
+    index_template = "dashboard_base.html"
     login_template = "login.html"
     index_title = _('Overview')
 

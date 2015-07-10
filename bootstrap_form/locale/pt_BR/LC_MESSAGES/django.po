@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-24 09:41-0300\n"
+"POT-Creation-Date: 2015-07-10 14:29-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,12 +20,12 @@ msgstr ""
 #: .\bootstrap_form\templates\bootstrap_form\formset_fields.html:21
 #: .\bootstrap_form\templates\bootstrap_form\formset_fields.html:63
 msgid "Display help text"
-msgstr ""
+msgstr "Mostrar mensagem de ajuda"
 
 #: .\bootstrap_form\templatetags\bootstrap_form.py:64
 msgid "Save"
-msgstr ""
+msgstr "Salvar"
 
 #: .\bootstrap_form\templatetags\bootstrap_form.py:64
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
