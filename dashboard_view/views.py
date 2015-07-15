@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from encodings.utf_8 import encode, decode
 import re
 from datatableview.utils import split_real_fields, filter_real_fields, get_first_orm_bit, get_field_definition, \
     resolve_orm_path, FIELD_TYPES, ObjectListResult
@@ -40,21 +41,22 @@ class DashboardView(ContextMixin):
     widget_class = None
 
     def get_page_name(self, add_view):
+        verbose_name = self.model._meta.verbose_name.decode('utf-8')
         new_title = (pgettext('female', 'New') if hasattr(self.model._meta,
                                                               'gender') and self.model._meta.gender == 'F' else \
-                             pgettext('male', 'New')) + u' %s' % self.model._meta.verbose_name
+                             pgettext('male', 'New')) + u' %s' % verbose_name.title()
 
         if self.template_name_suffix == '_form' and self.object:
-            page_name = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
+            page_name = verbose_name.title() + u' <small>' + self.object.__unicode__() + \
                                u' <span class="label label-warning">' + _('Editing') + u'</span></small> '
         elif self.template_name_suffix == '_detail':
-            page_name = self.model._meta.verbose_name.title() + u' <small>' + self.object.__unicode__() + \
+            page_name = verbose_name.title() + u' <small>' + self.object.__unicode__() + \
                                    u'</small>'
 
         elif self.template_name_suffix == '_form':
             page_name = new_title
         else:
-            page_name = self.model._meta.verbose_name_plural.title()
+            page_name = self.model._meta.verbose_name_plural.decode('utf-8').title()
 
         return page_name
 
@@ -423,7 +425,7 @@ class DashboardCreateView(CreateView, DashboardView):
     def form_valid(self, form):
         response = super(DashboardCreateView, self).form_valid(form)
 
-        model_name = self.model._meta.verbose_name
+        model_name = self.model._meta.verbose_name.decode('utf-8')
 
         if self.object:
             object_name = ' <strong>' + self.object.__unicode__() + '</strong> '
