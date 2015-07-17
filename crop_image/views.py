@@ -13,12 +13,12 @@ def image_upload(request):
     if 'upload_to' in request.POST:
         upload_to = request.POST['upload_to']
 
-    if request.POST and 'photo_crop_data' in request.POST and 'photo_original' in request.POST:
+    if request.POST and 'crop_data' in request.POST and 'original' in request.POST:
 
-        file = default_storage.open(os.path.join(settings.MEDIA_ROOT, request.POST['photo_original']))
+        file = default_storage.open(os.path.join(settings.MEDIA_ROOT, request.POST['original']))
         im = Image.open(file)
 
-        crop_data = json.loads(request.POST['photo_crop_data'])
+        crop_data = json.loads(request.POST['crop_data'])
         img_ratio = im.size[0]/float(crop_data["bounds"][0])
 
         crop_params = (int(round(crop_data['selectionPosition']['left']*img_ratio)),

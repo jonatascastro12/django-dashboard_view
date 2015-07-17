@@ -46,7 +46,7 @@ class DashboardMenu():
             output += u'<li><a href="{0}" class="{1}"><i class="fa {2} ' \
                       u'fa-fw"></i>{3} {4}</a>'.format(link, '', icon_class, verbose_name, arrow)
             if 'children' in item:
-                item['children'].sort()
+                #item['children'].sort()
                 output += u'<ul class="nav nav-second-level">'  # .format(' open' if active != '' else '')
                 for child_item in item['children']:
 

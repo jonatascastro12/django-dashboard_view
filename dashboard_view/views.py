@@ -103,6 +103,20 @@ class DashboardView(ContextMixin):
             context['detail_view'] = view_name + '_detail'
             context['edit_view'] = view_name + '_edit'
 
+            try:
+                reverse(context['list_view'])
+            except NoReverseMatch:
+                context['list_view'] = self.request.resolver_match.view_name
+            try:
+                reverse(context['detail_view'])
+            except NoReverseMatch:
+                context['detail_view'] = self.request.resolver_match.view_name
+            try:
+                reverse(context['edit_view'])
+            except NoReverseMatch:
+                context['edit_view'] = self.request.resolver_match.view_name
+
+
             if not context.has_key('page_name'):
                 context['page_name'] = self.get_page_name(context['add_view'])
 

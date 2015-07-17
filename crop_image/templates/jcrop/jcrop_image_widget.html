@@ -231,8 +231,8 @@ var script_{{input_name}} = setInterval(function(){
                 $('#id_{{ input_name}}_crop_data').val(JSON.stringify(data));
 
                 var form = new FormData();
-                form.append('{{ input_name }}_crop_data',$('#id_{{ input_name}}_crop_data').val() );
-                form.append('{{ input_name }}_original',$('#id_{{ input_name}}_original').val() );
+                form.append('crop_data',$('#id_{{ input_name}}_crop_data').val() );
+                form.append('original',$('#id_{{ input_name}}_original').val() );
                 form.append('upload_to','{{ upload_to }}' );
 
                 $.ajax({
