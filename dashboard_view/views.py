@@ -116,7 +116,6 @@ class DashboardView(ContextMixin):
             except NoReverseMatch:
                 context['edit_view'] = self.request.resolver_match.view_name
 
-
             if not context.has_key('page_name'):
                 context['page_name'] = self.get_page_name(context['add_view'])
 
@@ -177,29 +176,33 @@ class DashboardView(ContextMixin):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
+        if 'postman' in request.resolver_match.view_name:
+            permission_name = 'postman.view_messages'
+        else:
+            names = request.resolver_match.view_name.split(':')
 
-        names = request.resolver_match.view_name.split(':')
+            app_name = names[0]
+            view_name = names[1]
+            perm_pattern = '%s.view_%s'
 
-        app_name = names[0]
-        view_name = names[1]
-        perm_pattern = '%s.view_%s'
+            if 'report' in view_name:
+                if (self.report.perm is not None and not request.user.has_perm(self.report.perm)):
+                    messages.error(request, message=_('You don\'t have permission to the page you have tried to access.'), extra_tags='danger')
+                    return HttpResponseRedirect(redirect_to=reverse('dashboard:index'))
+                else:
+                    return super(DashboardView, self).dispatch(request, *args, **kwargs)
+            elif '_add' in view_name:
+                view_name = view_name.replace('_add', '')
+                perm_pattern = '%s.add_%s'
+            elif '_edit' in view_name:
+                view_name = view_name.replace('_edit', '')
+                perm_pattern = '%s.change_%s'
+            elif '_detail' in view_name:
+                view_name = view_name.replace('_detail', '')
 
-        if 'report' in view_name:
-            if (self.report.perm is not None and not request.user.has_perm(self.report.perm)):
-                messages.error(request, message=_('You don\'t have permission to the page you have tried to access.'), extra_tags='danger')
-                return HttpResponseRedirect(redirect_to=reverse('dashboard:index'))
-            else:
-                return super(DashboardView, self).dispatch(request, *args, **kwargs)
-        elif '_add' in view_name:
-            view_name = view_name.replace('_add', '')
-            perm_pattern = '%s.add_%s'
-        elif '_edit' in view_name:
-            view_name = view_name.replace('_edit', '')
-            perm_pattern = '%s.change_%s'
-        elif '_detail' in view_name:
-            view_name = view_name.replace('_detail', '')
+            permission_name = perm_pattern % (app_name, view_name)
 
-        if not request.user.has_perm(perm_pattern % (app_name, view_name)):
+        if not request.user.has_perm(permission_name):
             messages.error(request, message=_('You don\'t have permission to the page you have tried to access.'), extra_tags='danger')
             return HttpResponseRedirect(redirect_to=reverse('dashboard:index'))
 

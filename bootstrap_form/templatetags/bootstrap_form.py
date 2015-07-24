@@ -80,6 +80,16 @@ def add_class(field, class_name):
             "class": " ".join((field.css_classes(), class_name))
         })
 
+
+@register.filter
+def add_areatext_attrs(field, attrs):
+    if not isinstance(field, six.string_types):
+        return field.as_widget(attrs={
+            "rows": attrs.split(" ")[0],
+            "cols": attrs.split(" ")[1],
+
+        })
+
 @register.filter
 def add_placeholder(field, placeholder):
     return field.as_widget(attrs={
