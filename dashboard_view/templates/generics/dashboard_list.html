@@ -52,6 +52,7 @@
          {% block selection_actions %}
             {{ actions_menu }}
             {{ actions_html }}
+            {{ actions_js }}
          {% endblock %}
          &nbsp;
          {% block datatable %}
@@ -204,7 +205,6 @@
         });
     </script>
 
-    {{ actions_js }}
     <script>
         $(document).ready(function() {
                 $('.datatable tbody').on( 'click', 'tr', function () {
