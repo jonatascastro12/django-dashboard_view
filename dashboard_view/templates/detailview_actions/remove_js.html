@@ -1,9 +1,9 @@
 {% load i18n %}
 <script type="text/javascript">
-    var erase_objs = [];
+    var erase_obj = [];
     $('#remove').click(function(e){
         e.preventDefault();
-        erase_objs = [ {{ obj_id }} ];
+        erase_obj = {{ obj_id }};
         var name = [];
         var message = "{% trans 'Do you really want to delete this record?'%} "
         $('#remove-confirm-message').text(message);
@@ -11,11 +11,10 @@
     });
 
     $('#remove-confirm').click(function(){
-
         $.ajax({
-            url: '{% url list_view %}',
+            url: '{% url ajax_view obj_id %}',
             type: 'post',
-            data: JSON.stringify({'action': 'remove', data: {'ids': erase_objs} }),
+            data: {'action': 'remove', 'data': erase_obj},
             success: function(data){
                 $('#remove-prompt').modal('hide');
                 Dashboard.show_message("{% trans 'Deleting...' %}", 'warning');

@@ -54,10 +54,12 @@
     <script src="{% static 'js/sb-admin-2.js' %}"></script>
 
     <script type="text/javascript">
-        $('button[type="cancel"]').click(function(e){
-            e.preventDefault();
-            window.location="{% url list_view %}";
-        })
+        $(document).ready(function(){
+            $('button[type="cancel"]').click(function(e){
+                e.preventDefault();
+                window.location="{% url list_view %}";
+            });
+        });
 
     </script>
     {% if form.media %}

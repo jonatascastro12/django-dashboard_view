@@ -24,13 +24,13 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.text import smart_split
 from django.utils.translation import ugettext as _, pgettext
-from django.views.generic.base import ContextMixin, TemplateView, RedirectView, View
+from django.views.generic.base import ContextMixin, TemplateView, RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, FormView, CreateView
 from django.views.generic.list import ListView
 import operator
 import six
-from dashboard_view.detailview_actions import DashboardDetailViewActions
+from dashboard_view.detailview_actions import EditDetailViewAction, DetailViewAction, RemoveDetailViewAction
 from dashboard_view.listview_actions import DashboardListViewActions
 from dashboard_view.listview_filters import DashboardListViewFilters
 
@@ -167,10 +167,10 @@ class DashboardView(ContextMixin):
             context['actions_html'] = actions.render_actions_html()
             context['actions_js'] = actions.render_actions_js()
         elif hasattr(self, 'actions') and self.actions and self.template_name_suffix == '_detail':
-            actions = DashboardDetailViewActions(view=self, actions_list=self.actions)
-            context['actions_menu'] = actions.render_group_selection_menu()
-            context['actions_html'] = actions.render_actions_html()
-            context['actions_js'] = actions.render_actions_js()
+            rendered = DetailViewAction.render_detail_view_action(detail_view_action_list=self.actions, view=self)
+            context['actions_menu'] = rendered[0]
+            context['actions_html'] = rendered[1]
+            context['actions_js'] = rendered[2]
 
         return context
 
@@ -430,12 +430,16 @@ class DashboardListView(DatatableMixin, ListView, DashboardView):
 
 class DashboardDetailView(DetailView, DashboardView):
     actions = [
-        'edit', 'print', 'remove',
+        EditDetailViewAction,
+        RemoveDetailViewAction
     ]
 
-    def post(self, request):
-        actions = DashboardDetailViewActions(self.request, view=self)
-        return actions.apply_action()
+    def post(self, *args, **kwargs):
+        action_name = self.request.POST.get('action', None)
+        for action in self.actions:
+            action = action(view=self)
+            if action.name == action_name:
+                return action.run_action(self.request.POST.get('data', None))
 
 
 class DashboardCreateView(CreateView, DashboardView):
