@@ -1,5 +1,4 @@
 {% load bootstrap_form %}
-
 <div class="form-group {% if field.errors %}has-error{% endif %} {% if field.errors and not field.errors %}has-success{% endif %} {% if field.errors %}has-feedback{% endif %}">
     <label for="id_{{ field.name }}">{{field.label}}</label>
     {{ field|add_class:"form-control input-sm" }}
