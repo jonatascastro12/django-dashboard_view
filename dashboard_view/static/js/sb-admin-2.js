@@ -42,7 +42,7 @@ $(function() {
 
     var url = window.location;
     var element = $('ul.nav a').filter(function() {
-        var patt = new RegExp("^"+this.href+"(/)?([0-9]*)(/|/add|/edit/|/novo|/nova|/editar)?$");
+        var patt = new RegExp("^"+this.href+'(/)?([0-9]*)(/|/add|/edit/|/novo|/nova|/editar)?(\\?([a-z]+=[0-9]+)*)?$');
         return patt.exec(url);
     }).addClass('active').parent().parent().addClass('in').parent().parent().addClass('in');
     if (element.is('li')) {
