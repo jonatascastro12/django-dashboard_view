@@ -4,7 +4,25 @@
     <div class="col-lg-12">
         <div class="btn-group pull-right" role="group">
             {% for action in actions %}
+                {% if action.get_child_actions %}
+                 <div class="btn-group" role="group">
+                    <button id="{{ action.name }}" type="button" class="btn btn-{{ action.color_class }} dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <span class="fa fa-{{ action.icon_class }}" aria-hidden="true"></span> {{ action.label}}
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for child_action in action.get_child_actions %}
+                            <li><a href="" id="{{ child_action.name }}" class="btn-{{ child_action.color_class }}">
+                                {% if child_action.icon_class %}<span class="fa fa-{{ child_action.icon_class }}" aria-hidden="true"></span>{% endif %}
+                                {{ child_action.label}}
+                            </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                  </div>
+                {% else %}
                 <button id="{{ action.name }}" class="btn btn-{{ action.color_class }}"><span class="fa fa-{{ action.icon_class }}" aria-hidden="true"></span> {{ action.label}} </button>
+                {% endif %}
             {% endfor %}
         </div>
     </div>

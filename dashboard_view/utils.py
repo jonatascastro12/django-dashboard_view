@@ -5,6 +5,8 @@ from django.utils.safestring import mark_safe
 def format_currency(value, with_icon=True):
     locale.setlocale(locale.LC_MONETARY, '')
     icon = ''
+    if value is None:
+        return mark_safe("<span class=\"%s\">%s</span> %s" % ('text-success',  locale.currency(0), icon))
     if value >= 0:
         class_type = 'text-success'
         if with_icon:

@@ -7,11 +7,15 @@ from django_select2.media import get_select2_css_libs
 from django_select2.widgets import AutoHeavySelect2Widget, AutoHeavySelect2MultipleWidget, logger
 from django_select2_extension.media import get_select2_extended_heavy_js_libs
 
+class NewAutoHeavySelect2Widget(AutoHeavySelect2Widget):
+    def init_options(self):
+        super(NewAutoHeavySelect2Widget, self).init_options()
+        self.options['minimumInputLength'] = 0
 
 class Select2WithPhotoMixin(object):
     def init_options(self):
         super(Select2WithPhotoMixin, self).init_options()
-
+        self.options['minimumInputLength'] = 0
         self.options['escapeMarkup'] = "*START*function (markup) { return markup; }*END*"
         self.options['formatSelection'] = "*START*" \
                                             "function(a,b,c){console.log(a);" \

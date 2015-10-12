@@ -19,6 +19,11 @@ class DashboardReportView(DashboardFormView):
         self.form_class = self.report.filter_form
         self.model = self.report.model
 
+    def get_form(self, form_class=None):
+        form = super(DashboardReportView, self).get_form()
+        form.initial = self.request.GET.dict() or self.request.POST.dict() or {}
+        return form
+
     def get_success_url(self):
         return HttpResponseRedirect(self.get_success_url())
 
@@ -46,12 +51,6 @@ class DashboardReport(object):
 
     def get_queryset(self, form):
         return self.queryset
-
-    def get_context(self, form, objects, context):
-        context['form'] = form
-        context['objects'] = objects
-
-        return context
 
     def get_slug(self):
         if self.verbose_name:
@@ -91,7 +90,13 @@ class DashboardReport(object):
             for obj in objects:
                 output += u'<tr>'
                 for ld in list_display:
-                    attr = ld[1] if type(ld) == tuple else ld
+                    if type(ld) == tuple:
+                        if len(ld) == 3:
+                            attr = ld[2]
+                        else:
+                            attr = ld[1]
+                    else:
+                        attr = ld
                     value = getattrd(obj, attr, u' - ')
                     if callable(value):
                         value = value()

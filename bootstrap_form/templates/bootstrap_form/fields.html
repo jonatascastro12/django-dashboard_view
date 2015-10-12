@@ -66,7 +66,7 @@
 
                 <div class="col-sm-8 col-lg-4">
                     {{ field|add_class:"form-control" }}
-                    {% if form.errors and field.field.widget|klass != 'select' and field.field.widget|klass != 'datetimepicker' and field.field.widget|klass != 'autophotoheavyselect2widget' %}
+                    {% if form.errors and field.field.widget|klass != 'select' and field.field.widget|klass != 'datetimepicker' and field.field.widget|klass != 'autophotoheavyselect2widget' and field.field.widget|klass != 'autoheavyselect2widget'%}
                         {% if field.errors %}
                         <span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
                         <span id="id_{{ field.name }}Status" class="sr-only">(error)</span>

@@ -53,6 +53,8 @@ class DashboardAdminSite(AdminSite):
             except AttributeError:
                 return (u'', u'', )
 
+    #TODO: register_menu
+
     def get_urls(self):
         from django.conf.urls import url
 
