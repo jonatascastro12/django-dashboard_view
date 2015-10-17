@@ -1,11 +1,16 @@
+import hashlib
 import json
 import operator
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import ForeignKey
 from django.db.models.query_utils import Q
+from django.forms.forms import Form
 from django.template.context import Context
 from django.template.loader import get_template
 from django.utils.safestring import mark_safe
+from django_select2.fields import AutoModelSelect2Field, AutoModelSelect2MultipleField
 import six
+from django_select2_extension.widgets import NewAutoHeavySelect2MultipleWidget
 
 
 class DashboardListViewFilters:
@@ -48,6 +53,14 @@ class DashboardListViewFilters:
         if len(f['data']['values']) > 0:
             field_queries = []
             for val in f['data']['values']:
+                field_queries.append(Q(**{f['field']: val}))
+            term_queries.append(reduce(operator.or_, field_queries))
+        return term_queries
+
+    def filter_select2_multichoice(self, f, term_queries):
+        if f['data'].get('value'):
+            field_queries = []
+            for val in f['data']['value'].split(u'\x1f'):
                 field_queries.append(Q(**{f['field']: val}))
             term_queries.append(reduce(operator.or_, field_queries))
         return term_queries
@@ -113,14 +126,26 @@ class DashboardListViewFilters:
         template_html = get_template('filters/checkbox_choice.html')
 
         if choices is None:
-            field = self.view.model._meta.get_field_by_name(field_name)
-            if isinstance(field[0], ForeignKey):
-                related_objs = field[0].related.model.objects.all()
-                choices = []
-                for obj in related_objs:
-                    choices.append((obj.id, obj.__unicode__()))
-            else:
-                choices = field[0].choices
+            try:
+                field = self.view.model._meta.get_field_by_name(field_name)
+            except FieldDoesNotExist:
+                if '__' in field_name:
+                    real_field_name = field_name.split('__')[0]
+                    choiced_attr_name = field_name.split('__')[1]
+                    fields = self.view.model._meta.get_field_by_name(real_field_name)
+                    choices = fields[0].rel.to._meta.get_field(choiced_attr_name).choices
+
+            if choices is None:
+                if isinstance(field[0], ForeignKey):
+                    try:
+                        related_objs = field[0].related.model.objects.all()
+                    except AttributeError:
+                        related_objs = field[0].related.model.accounted.all()
+                    choices = []
+                    for obj in related_objs:
+                        choices.append((obj.id, obj.__unicode__()))
+                else:
+                    choices = field[0].choices
 
         c = Context({
             'field_name': field_name,
@@ -129,6 +154,40 @@ class DashboardListViewFilters:
             'choices': choices
         })
         template_js = get_template('filters/checkbox_choice_js.html')
+
+        return (template_html.render(c), template_js.render(c), )
+
+    def _render_filter_select2_multichoice(self, filter_label, field_name, datatable_class='datatable', choices=None):
+        template_html = get_template('filters/select2_multichoice.html')
+
+        if choices is None:
+            field = self.view.model._meta.get_field_by_name(field_name)
+            if isinstance(field[0], ForeignKey):
+                try:
+                    related_objs = field[0].related.model.objects
+                except AttributeError:
+                    related_objs = field[0].related.model.accounted
+
+        class Select2Field(AutoModelSelect2MultipleField):
+            queryset = related_objs
+            search_fields = ['title__icontains']
+            widget = NewAutoHeavySelect2MultipleWidget
+
+
+        class Select2Form(Form):
+            def __init__(self, *args, **kwargs):
+                super(Select2Form, self).__init__(*args, **kwargs)
+                self.fields['filter_select2_multichoice_' + field_name] = Select2Field(auto_id=field_name)
+
+
+        c = Context({
+            'field_name': field_name,
+            'filter_label': filter_label,
+            'form': Select2Form(),
+            'datatable_class': datatable_class,
+            'choices': choices
+        })
+        template_js = get_template('filters/select2_multichoice_js.html')
 
         return (template_html.render(c), template_js.render(c), )
 

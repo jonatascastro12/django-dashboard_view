@@ -12,6 +12,11 @@ class NewAutoHeavySelect2Widget(AutoHeavySelect2Widget):
         super(NewAutoHeavySelect2Widget, self).init_options()
         self.options['minimumInputLength'] = 0
 
+class NewAutoHeavySelect2MultipleWidget(AutoHeavySelect2MultipleWidget):
+    def init_options(self):
+        super(AutoHeavySelect2MultipleWidget, self).init_options()
+        self.options['minimumInputLength'] = 0
+
 class Select2WithPhotoMixin(object):
     def init_options(self):
         super(Select2WithPhotoMixin, self).init_options()

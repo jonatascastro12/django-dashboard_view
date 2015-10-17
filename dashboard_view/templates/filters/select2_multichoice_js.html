@@ -1,0 +1,33 @@
+{% load i18n %}
+
+<script type="text/javascript">
+    function filter_select2_multichoice_{{field_name}}_clear(){
+        $('#id_filter_select2_multichoice_{{ field_name }}').val(null).trigger("change");
+        filter_select2_multichoice_{{ field_name }}_add();
+    }
+
+    function filter_select2_multichoice_{{ field_name }}_add(){
+        debugger;
+        DashboardFilters.add_filter({
+            field: '{{ field_name }}',
+            filter: 'select2_multichoice',
+            data: {
+                value: $('#id_filter_select2_multichoice_{{ field_name }}').val(),
+            },
+            clear: filter_select2_multichoice_{{field_name}}_clear
+        });
+    }
+
+    filter_select2_multichoice_{{ field_name }}_add();
+
+    $('#id_filter_select2_multichoice_{{ field_name }}').on('change', function(){
+        debugger;
+        filter_select2_multichoice_{{ field_name }}_add();
+    });
+
+    $('#clear_{{ field_name }}_select2_multichoice_button').click(function(){
+        filter_select2_multichoice_{{ field_name }}_clear();
+        console.log('reloaded');
+        datatableview.initialized_datatables[0].api().ajax.reload();
+    });
+</script>

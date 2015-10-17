@@ -1,0 +1,8 @@
+{% load i18n %}
+<div class="form-inline">
+    <label>{{ filter_label }} </label>&nbsp;
+        {% for f in form %}
+            {{f}}
+        {% endfor %}
+    <button id="clear_{{ field_name }}_select2_multichoice_button" class="text-right pull-right btn-link "><span class="fa fa-close text-muted"></span></button>
+</div>
