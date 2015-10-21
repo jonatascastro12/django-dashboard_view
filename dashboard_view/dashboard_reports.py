@@ -12,12 +12,14 @@ class DashboardReportView(DashboardFormView):
     admin_site = None
     model = None
 
-    def __init__(self, report, admin_site, **kwargs):
+    def __init__(self, report, admin_site, template_name=None, **kwargs):
         super(DashboardReportView, self).__init__(**kwargs)
         self.report = report
         self.admin_site = admin_site
         self.form_class = self.report.filter_form
         self.model = self.report.model
+        if template_name is not None:
+            self.template_name = template_name
 
     def get_form(self, form_class=None):
         form = super(DashboardReportView, self).get_form()
@@ -41,6 +43,7 @@ class DashboardReport(object):
     icon = None
     list_display = None
     form = None
+    template_name = None
 
     def __init__(self, admin_site):
         self.admin_site = admin_site
@@ -62,7 +65,7 @@ class DashboardReport(object):
         return reverse_lazy('dashboard:report_'+self.name)
 
     def get_view(self):
-        view = DashboardReportView.as_view(report=self, admin_site=self.admin_site)
+        view = DashboardReportView.as_view(report=self, admin_site=self.admin_site, template_name=self.template_name)
         return view
 
     def get_list_display(self, form):
