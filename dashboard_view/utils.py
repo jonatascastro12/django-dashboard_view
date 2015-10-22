@@ -19,7 +19,7 @@ def format_currency(value, with_icon=True, zero=None):
         if with_icon:
             icon = '<span class="text-danger fa fa-minus"></span>'
 
-    return mark_safe("<span class=\"%s\">%s</span> %s" % (class_type,  locale.currency(value), icon))
+    return mark_safe("<span class=\"%s\">%s</span> %s" % (class_type,  locale.currency(value, grouping=True), icon))
 
 
 class NoDefaultProvided(object):

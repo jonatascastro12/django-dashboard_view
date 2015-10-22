@@ -6,6 +6,7 @@ from django.template.loader import get_template
 from django.utils.translation import ugettext as _
 import itertools
 import six
+from dashboard_view.utils import format_currency as currency
 
 register = template.Library()
 
@@ -163,3 +164,7 @@ def getattr (obj, args):
 @register.filter
 def leading_zeros(value, desired_digits):
     return str(value).zfill(desired_digits)
+
+@register.filter
+def format_currency(value, with_icon=False, zero='-'):
+    return currency(value, with_icon, zero)

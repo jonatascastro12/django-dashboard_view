@@ -31,7 +31,7 @@ class DashboardReportView(DashboardFormView):
 
     def form_valid(self, form):
         objects = self.report.get_queryset(form)
-        return self.render_to_response(context=self.get_context_data(form=form, objects=objects,
+        return self.render_to_response(context=self.get_context_data(form=form, objects=objects, report=self.report,
                                                                      report_table=self.report.render_table(objects, form)))
 
 class DashboardReport(object):

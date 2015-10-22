@@ -10,6 +10,7 @@ from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 from django_select2.fields import AutoModelSelect2Field, AutoModelSelect2MultipleField
 import six
+from django_select2_extension.fields import AutoPhotoModelSelect2MultipleField
 from django_select2_extension.widgets import NewAutoHeavySelect2MultipleWidget
 
 
@@ -168,10 +169,17 @@ class DashboardListViewFilters:
                 except AttributeError:
                     related_objs = field[0].related.model.accounted
 
-        class Select2Field(AutoModelSelect2MultipleField):
-            queryset = related_objs
-            search_fields = ['title__icontains']
-            widget = NewAutoHeavySelect2MultipleWidget
+        try:
+            field[0].related_model._meta.get_field_by_name('title')
+            class Select2Field(AutoModelSelect2MultipleField):
+                queryset = related_objs
+                search_fields = ['title__icontains']
+                widget = NewAutoHeavySelect2MultipleWidget
+        except FieldDoesNotExist:
+            field[0].related_model._meta.get_field_by_name('name')
+            class Select2Field(AutoPhotoModelSelect2MultipleField):
+                queryset = related_objs
+                search_fields = ['name__icontains']
 
 
         class Select2Form(Form):
