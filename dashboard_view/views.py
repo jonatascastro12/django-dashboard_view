@@ -41,22 +41,22 @@ class DashboardView(ContextMixin):
     widget_class = None
 
     def get_page_name(self, add_view):
-        verbose_name = self.model._meta.verbose_name.decode('utf-8')
+        verbose_name = self.model._meta.verbose_name.encode('utf-8')
         new_title = (pgettext('female', 'New') if hasattr(self.model._meta,
                                                               'gender') and self.model._meta.gender == 'F' else \
-                             pgettext('male', 'New')) + u' %s' % verbose_name.title()
+                             pgettext('male', 'New')) + u' %s' % verbose_name.decode('utf-8').title()
 
         if self.template_name_suffix == '_form' and self.object:
-            page_name = verbose_name.title() + u' <small>' + self.object.__unicode__() + \
+            page_name = verbose_name.decode('utf-8').title() + u' <small>' + self.object.__unicode__() + \
                                u' <span class="label label-warning">' + _('Editing') + u'</span></small> '
         elif self.template_name_suffix == '_detail':
-            page_name = verbose_name.title() + u' <small>' + self.object.__unicode__() + \
+            page_name = verbose_name.decode('utf-8').title() + u' <small>' + self.object.__unicode__() + \
                                    u'</small>'
 
         elif self.template_name_suffix == '_form':
             page_name = new_title
         else:
-            page_name = self.model._meta.verbose_name_plural.decode('utf-8').title()
+            page_name = self.model._meta.verbose_name_plural.title()
 
         return page_name
 
