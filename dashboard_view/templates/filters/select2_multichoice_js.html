@@ -7,7 +7,6 @@
     }
 
     function filter_select2_multichoice_{{ field_name }}_add(){
-        debugger;
         DashboardFilters.add_filter({
             field: '{{ field_name }}',
             filter: 'select2_multichoice',
@@ -21,7 +20,6 @@
     filter_select2_multichoice_{{ field_name }}_add();
 
     $('#id_filter_select2_multichoice_{{ field_name }}').on('change', function(){
-        debugger;
         filter_select2_multichoice_{{ field_name }}_add();
     });
 

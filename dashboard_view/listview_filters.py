@@ -2,7 +2,7 @@ import hashlib
 import json
 import operator
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models.fields.related import ForeignKey
+from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.query_utils import Q
 from django.forms.forms import Form
 from django.template.context import Context
@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django_select2.fields import AutoModelSelect2Field, AutoModelSelect2MultipleField
 import six
 from django_select2_extension.fields import AutoPhotoModelSelect2MultipleField
-from django_select2_extension.widgets import NewAutoHeavySelect2MultipleWidget
+from django_select2_extension.widgets import NewAutoHeavySelect2MultipleWidget, AutoPhotoHeavySelect2MultipleWidget
 
 
 class DashboardListViewFilters:
@@ -70,13 +70,14 @@ class DashboardListViewFilters:
         field_name = ''
         filter_label = ''
         filter_type = ''
-        choices = None
+        options = None
         if type(f) is tuple:
             filter_label = f[0]
             field_name = f[1]
 
             if len(f) > 3:
-                choices = f[3]
+                options = f[3]
+                filter_type = f[2]
             elif len(f) > 2:
                 filter_type = f[2]
             else:
@@ -95,13 +96,13 @@ class DashboardListViewFilters:
 
         try:
             if callable(getattr(self, '_render_filter_%s' % filter_type, None)):
-                return getattr(self, '_render_filter_%s' % filter_type)(filter_label, field_name, choices)
+                return getattr(self, '_render_filter_%s' % filter_type)(filter_label, field_name, options)
         except AttributeError:
             return (u'', u'', )
 
         return ('', '', )
 
-    def _render_filter_date_range(self, filter_label, field_name, choices=None, datatable_class='datatable'):
+    def _render_filter_date_range(self, filter_label, field_name, options=None, datatable_class='datatable'):
         template_html = get_template('filters/date_range.html')
         c = Context({
             'field_name': field_name,
@@ -112,7 +113,7 @@ class DashboardListViewFilters:
 
         return (template_html.render(c), template_js.render(c), )
 
-    def _render_filter_input_text(self, filter_label, field_name, choices=None, datatable_class='datatable'):
+    def _render_filter_input_text(self, filter_label, field_name, options=None, datatable_class='datatable'):
         template_html = get_template('filters/input_text.html')
         c = Context({
             'field_name': field_name,
@@ -123,10 +124,12 @@ class DashboardListViewFilters:
 
         return (template_html.render(c), template_js.render(c), )
 
-    def _render_filter_checkbox_choice(self, filter_label, field_name, datatable_class='datatable', choices=None):
+    def _render_filter_checkbox_choice(self, filter_label, field_name, datatable_class='datatable', options=None):
         template_html = get_template('filters/checkbox_choice.html')
 
-        if choices is None:
+        choices = None
+
+        if options is None:
             try:
                 field = self.view.model._meta.get_field_by_name(field_name)
             except FieldDoesNotExist:
@@ -158,28 +161,34 @@ class DashboardListViewFilters:
 
         return (template_html.render(c), template_js.render(c), )
 
-    def _render_filter_select2_multichoice(self, filter_label, field_name, datatable_class='datatable', choices=None):
+    def _render_filter_select2_multichoice(self, filter_label, field_name, options=None):
         template_html = get_template('filters/select2_multichoice.html')
 
-        if choices is None:
-            field = self.view.model._meta.get_field_by_name(field_name)
-            if isinstance(field[0], ForeignKey):
-                try:
-                    related_objs = field[0].related.model.objects
-                except AttributeError:
-                    related_objs = field[0].related.model.accounted
+        field = self.view.model._meta.get_field_by_name(field_name)
+        if isinstance(field[0], (ForeignKey, ManyToManyField)):
+            try:
+                related_objs = field[0].related.model.objects
+            except AttributeError:
+                related_objs = field[0].related.model.accounted
 
-        try:
-            field[0].related_model._meta.get_field_by_name('title')
-            class Select2Field(AutoModelSelect2MultipleField):
-                queryset = related_objs
-                search_fields = ['title__icontains']
-                widget = NewAutoHeavySelect2MultipleWidget
-        except FieldDoesNotExist:
-            field[0].related_model._meta.get_field_by_name('name')
-            class Select2Field(AutoPhotoModelSelect2MultipleField):
-                queryset = related_objs
-                search_fields = ['name__icontains']
+        if options is None:
+            search_field = 'title__icontains'
+            photo = False
+        else:
+            search_field = options.get('search_field', 'title__icontains')
+            photo = options.get('photo', False)
+
+        if photo:
+            widget_class = AutoPhotoHeavySelect2MultipleWidget
+            field_class = AutoPhotoModelSelect2MultipleField
+        else:
+            widget_class = NewAutoHeavySelect2MultipleWidget
+            field_class = AutoModelSelect2MultipleField
+
+        class Select2Field(field_class):
+            queryset = related_objs
+            search_fields = [search_field]
+            widget = widget_class
 
 
         class Select2Form(Form):
@@ -187,13 +196,12 @@ class DashboardListViewFilters:
                 super(Select2Form, self).__init__(*args, **kwargs)
                 self.fields['filter_select2_multichoice_' + field_name] = Select2Field(auto_id=field_name)
 
-
+        datatable_class = 'datatable'
         c = Context({
             'field_name': field_name,
             'filter_label': filter_label,
             'form': Select2Form(),
             'datatable_class': datatable_class,
-            'choices': choices
         })
         template_js = get_template('filters/select2_multichoice_js.html')
 

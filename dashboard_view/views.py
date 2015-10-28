@@ -41,7 +41,10 @@ class DashboardView(ContextMixin):
     widget_class = None
 
     def get_page_name(self, add_view):
-        verbose_name = self.model._meta.verbose_name.encode('utf-8')
+        if type(self.model._meta.verbose_name) is str:
+            verbose_name = self.model._meta.verbose_name.decode('utf-8')
+        else:
+            verbose_name = self.model._meta.verbose_name.encode('utf-8')
         new_title = (pgettext('female', 'New') if hasattr(self.model._meta,
                                                               'gender') and self.model._meta.gender == 'F' else \
                              pgettext('male', 'New')) + u' %s' % verbose_name.decode('utf-8').title()
