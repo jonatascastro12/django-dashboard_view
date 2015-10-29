@@ -41,19 +41,17 @@ class DashboardView(ContextMixin):
     widget_class = None
 
     def get_page_name(self, add_view):
-        if type(self.model._meta.verbose_name) is str:
-            verbose_name = self.model._meta.verbose_name.decode('utf-8')
-        else:
-            verbose_name = self.model._meta.verbose_name.encode('utf-8')
+        verbose_name = self.model._meta.verbose_name
+
         new_title = (pgettext('female', 'New') if hasattr(self.model._meta,
                                                               'gender') and self.model._meta.gender == 'F' else \
-                             pgettext('male', 'New')) + u' %s' % verbose_name.decode('utf-8').title()
+                             pgettext('male', 'New')) + u' %s' % verbose_name.title()
 
         if self.template_name_suffix == '_form' and self.object:
-            page_name = verbose_name.decode('utf-8').title() + u' <small>' + self.object.__unicode__() + \
+            page_name = verbose_name.title() + u' <small>' + self.object.__unicode__() + \
                                u' <span class="label label-warning">' + _('Editing') + u'</span></small> '
         elif self.template_name_suffix == '_detail':
-            page_name = verbose_name.decode('utf-8').title() + u' <small>' + self.object.__unicode__() + \
+            page_name = verbose_name.title() + u' <small>' + self.object.__unicode__() + \
                                    u'</small>'
 
         elif self.template_name_suffix == '_form':
@@ -449,7 +447,7 @@ class DashboardCreateView(CreateView, DashboardView):
     def form_valid(self, form):
         response = super(DashboardCreateView, self).form_valid(form)
 
-        model_name = self.model._meta.verbose_name.decode('utf-8')
+        model_name = self.model._meta.verbose_name
 
         if self.object:
             object_name = ' <strong>' + self.object.__unicode__() + '</strong> '
