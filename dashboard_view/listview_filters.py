@@ -166,10 +166,10 @@ class DashboardListViewFilters:
 
         field = self.view.model._meta.get_field_by_name(field_name)
         if isinstance(field[0], (ForeignKey, ManyToManyField)):
-            try:
-                related_objs = field[0].related.model.objects
-            except AttributeError:
+            if hasattr(field[0].related.model, 'accounted'):
                 related_objs = field[0].related.model.accounted
+            else:
+                related_objs = field[0].related.model.objects
 
         if options is None:
             search_field = 'title__icontains'
