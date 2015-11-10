@@ -16,10 +16,7 @@ class DashboardAdminSite(AdminSite):
     reports = None
     widgets = None
 
-    def has_permission(self, request):
-        if not request.user.userprofile.teammember_set.exists():
-            return False
-        return super(DashboardAdminSite, self).has_permission(request)
+
 
     def each_context(self, request):
         context = super(DashboardAdminSite, self).each_context(request)

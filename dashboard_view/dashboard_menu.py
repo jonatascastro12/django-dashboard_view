@@ -17,12 +17,12 @@ class DashboardMenu():
                     found_report = True
                     obj['children'].append(
                         {'name': item.name, 'verbose_name': item.verbose_name,
-                        'link': reverse_lazy('dashboard:report_'+item.name), 'icon_class': item.icon, }
+                        'link': reverse_lazy('dashboard:report_'+item.name), 'icon_class': item.icon, 'perm': item.perm }
                     )
             if not found_report:
                 self.menu.append({'name': 'reports', 'icon_class': 'fa-file-text', 'verbose_name': _('Reports'), 'children':
                     [{'name': item.name, 'verbose_name': item.verbose_name,
-                        'link': reverse_lazy('dashboard:report_'+item.name), 'icon_class': item.icon, },
+                        'link': reverse_lazy('dashboard:report_'+item.name), 'icon_class': item.icon,  'perm': item.perm},
                     ]})
 
     def render(self, request=None, permission=None):

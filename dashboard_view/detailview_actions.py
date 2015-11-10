@@ -35,24 +35,26 @@ class DetailViewAction:
         html_output = u''
         js_output = u''
 
-        for action in detail_view_action_list:
-            action = action()
-
-        c = Context({
-            'actions': detail_view_action_list
-        })
-
-        t = get_template('detailview_actions/_group_selection_menu.html')
-        menu_output = t.render(c)
+        permitted_list = []
 
         user = view.request.user
         for action in detail_view_action_list:
-            if (action.perm is not None and not user.has_perm(action.perm)):
+            model_app = view.model._meta.app_label
+            model_name = view.model._meta.model_name
+            if (action.perm is not None and not user.has_perm((action.perm  % (model_app, model_name, )) if '%' in action.perm else action.perm)):
                 continue
+            permitted_list.append(action)
             action_intance = action(view=view)
             rendered = action_intance.render()
             html_output += rendered[0]
             js_output += rendered[1]
+
+        c = Context({
+            'actions': permitted_list
+        })
+
+        t = get_template('detailview_actions/_group_selection_menu.html')
+        menu_output = t.render(c)
 
         return (mark_safe(menu_output), mark_safe(html_output), mark_safe(js_output))
 
@@ -61,10 +63,11 @@ class DetailViewAction:
 
 class EditDetailViewAction(DetailViewAction):
     name = 'edit'
-    perm = 'main.edit_userprofile'
+    perm = '%s.change_%s'
     color_class = 'default'
     icon_class = 'pencil'
     label = _('Edit')
+
 
     def render(self):
         c = Context({
@@ -76,7 +79,7 @@ class EditDetailViewAction(DetailViewAction):
 
 class RemoveDetailViewAction(DetailViewAction):
     name = 'remove'
-    perm = 'main.edit_userprofile'
+    perm = '%s.delete_%s'
     color_class = 'danger'
     icon_class = 'eraser'
     label = _('Remove')

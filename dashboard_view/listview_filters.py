@@ -175,8 +175,8 @@ class DashboardListViewFilters:
             search_field = 'title__icontains'
             photo = False
         else:
-            search_field = options.get('search_field', 'title__icontains')
             photo = options.get('photo', False)
+            search_field = options.get('search_field', 'title__icontains')
 
         if photo:
             widget_class = AutoPhotoHeavySelect2MultipleWidget
