@@ -16,6 +16,21 @@ $(document).ready(function(){
 
 $(function() {
     $('#side-menu').metisMenu();
+
+    var panelList = $('.dashboard_widgets');
+    if (panelList.size()>0){
+        panelList.sortable({
+            handle: '.panel-heading',
+            update: function() {
+                $('.panel', panelList).each(function (index, elem) {
+                    var $listItem = $(elem),
+                        newIndex = $listItem.index();
+
+                    // Persist the new indices.
+                });
+            }
+        });
+    }
 });
 
 //Loads the correct sidebar on window load,

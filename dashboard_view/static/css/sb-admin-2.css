@@ -389,6 +389,11 @@ table.dataTable thead .sorting:after {
     width: 99%;
 }
 
+.dashboard_widgets li{
+    list-style: none;
+}
+
 @media print {
     .tab-content > .tab-pane {display: block !important; opacity: 1 !important; visibility: visible !important}
 }
+
