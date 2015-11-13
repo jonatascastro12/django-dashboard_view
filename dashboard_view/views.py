@@ -16,7 +16,7 @@ from django.core.urlresolvers import reverse, reverse_lazy, NoReverseMatch
 from django.db.models.fields import Field, FieldDoesNotExist
 from django.db.models.query_utils import Q
 from django.forms.widgets import Media, PasswordInput
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.template.base import TemplateDoesNotExist
 from django.template.loader import get_template
 from django.utils.decorators import method_decorator
@@ -24,7 +24,7 @@ from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
 from django.utils.text import smart_split
 from django.utils.translation import ugettext as _, pgettext
-from django.views.generic.base import ContextMixin, TemplateView, RedirectView
+from django.views.generic.base import ContextMixin, TemplateView, RedirectView, View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, FormView, CreateView
 from django.views.generic.list import ListView
@@ -495,6 +495,8 @@ class DashboardProfileView(TemplateView, DashboardView):
 class LoginForm(forms.Form):
     username = forms.CharField(label=_("Username/Email"))
     password = forms.CharField(label=_("Password"), widget=PasswordInput)
+
+
 
 class LoginView(FormView):
     form_class = LoginForm

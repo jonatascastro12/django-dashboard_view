@@ -1,4 +1,4 @@
-{% load i18n bootstrap_form %}
+ {% load i18n bootstrap_form %}
 {% for field in fields %}
     {% if field.is_hidden and field.field.widget|klass != 'extendedautoheavyselectwidget'  %}
         {{ field }}
