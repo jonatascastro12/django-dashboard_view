@@ -6,4 +6,5 @@ recursive-include crop_image/static *
 recursive-include crop_image/templates *
 recursive-include bootstrap_form/templates *
 recursive-include bootstrap_form/templatetags *
+recursive-include django_select2_extension/static *
 recursive-include docs *
