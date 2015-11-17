@@ -51,11 +51,15 @@
 </div>
 <div class="row">
     {% block form %}
+    {% if filter %}
+        {{ filter.form.as_p }}
+    {% else %}
     <form class="form-horizontal hidden-print" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|as_bootstrap}}
             {% buttons 'Gerar' %}
     </form>
+    {% endif %}
     {% endblock %}
 </div>
 {% if objects %}

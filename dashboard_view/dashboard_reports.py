@@ -21,6 +21,12 @@ class DashboardReportView(DashboardFormView):
         if template_name is not None:
             self.template_name = template_name
 
+    def get_context_data(self, **kwargs):
+        context = super(DashboardReportView, self).get_context_data(**kwargs)
+        if self.report.filter:
+            context['filter'] = self.report.filter(self.request.GET, queryset=self.report.queryset)
+        return context
+
     def get_form(self, form_class=None):
         form = super(DashboardReportView, self).get_form()
         form.initial = self.request.GET.dict() or self.request.POST.dict() or {}
